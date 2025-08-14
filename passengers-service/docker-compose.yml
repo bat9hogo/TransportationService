@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   postgres:
-    container_name: transportation-postgres
+    container_name: passengers-postgres
     image: postgres:15
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
@@ -10,7 +10,7 @@ services:
     ports:
       - "${POSTGRES_PORT}:5432"
     volumes:
-      - transportation_data:/var/lib/postgresql/data
+      - passengers_data:/var/lib/postgresql/data
 
 volumes:
-  transportation_data:
+  passengers_data:

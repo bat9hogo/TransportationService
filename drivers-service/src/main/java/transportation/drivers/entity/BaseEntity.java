@@ -1,27 +1,49 @@
 package transportation.drivers.entity;
 
-import jakarta.persistence.*;
-import java.time.OffsetDateTime;
+import lombok.Data;
+import org.springframework.data.annotation.Id;
+import java.util.Date;
 
-@MappedSuperclass
+@Data
 public abstract class BaseEntity {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    protected Long id;
+    private String id;
 
-    @Column(nullable = false)
-    protected boolean deleted = false;
+    private boolean deleted = false;
 
-    @Column(nullable = false, updatable = false)
-    protected OffsetDateTime createdAt = OffsetDateTime.now();
+    private Date createdAt = new Date();
+    private Date updatedAt = new Date();
 
-    @Column(nullable = false)
-    protected OffsetDateTime updatedAt = OffsetDateTime.now();
+    public String getId() {
+        return id;
+    }
 
-    @PreUpdate
-    public void onUpdate() { this.updatedAt = OffsetDateTime.now(); }
+    public void setId(String id) {
+        this.id = id;
+    }
 
-    public Long getId() { return id; }
-    public boolean isDeleted() { return deleted; }
-    public void setDeleted(boolean deleted) { this.deleted = deleted; }
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }

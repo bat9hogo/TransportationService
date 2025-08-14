@@ -1,12 +1,11 @@
 package transportation.drivers.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import transportation.drivers.dto.DriverDto;
+import transportation.drivers.entity.Car;
 import transportation.drivers.entity.Driver;
-import transportation.drivers.mapper.CarMapper;
+import transportation.drivers.exception.NotFoundException;
 import transportation.drivers.mapper.DriverMapper;
 import transportation.drivers.repository.CarRepository;
 import transportation.drivers.repository.DriverRepository;
@@ -14,59 +13,82 @@ import transportation.drivers.repository.DriverRepository;
 import java.util.List;
 
 @Service
-
+@RequiredArgsConstructor
 public class DriverServiceImpl implements DriverService {
 
-    private final DriverRepository driverRepository;
-    private final DriverMapper driverMapper;
+    private DriverRepository driverRepository;
+    private CarRepository carRepository;
+    private DriverMapper driverMapper;
 
-    public DriverServiceImpl(DriverRepository driverRepository, DriverMapper driverMapper) {
+    public DriverServiceImpl
+            (DriverRepository driverRepository, CarRepository carRepository,
+             DriverMapper driverMapper
+            ) {
         this.driverRepository = driverRepository;
+        this.carRepository = carRepository;
         this.driverMapper = driverMapper;
     }
 
     @Override
-    @Transactional
     public DriverDto createDriver(DriverDto dto) {
         Driver driver = driverMapper.toEntity(dto);
         Driver savedDriver = driverRepository.save(driver);
-        if (driver.getCars() != null) {
-            driver.getCars().forEach(car -> car.setDriver(savedDriver));
+
+        if (dto.carIds() != null && !dto.carIds().isEmpty()) {
+            List<Car> cars = carRepository.findAllByIdIn(dto.carIds());
+            cars.forEach(car -> car.setDriverId(savedDriver.getId()));
+            carRepository.saveAll(cars);
+
+            savedDriver.setCarIds(cars.stream().map(Car::getId).toList());
+            driverRepository.save(savedDriver);
         }
-        return driverMapper.toDto(driverRepository.save(savedDriver));
+
+        return driverMapper.toDto(savedDriver);
     }
 
     @Override
-    @Transactional
-    public DriverDto updateDriver(Long id, DriverDto dto) {
+    public DriverDto updateDriver(String id, DriverDto dto) {
         Driver existing = driverRepository.findByIdAndDeletedFalse(id)
-                .orElseThrow(() -> new EntityNotFoundException("Driver not found"));
+                .orElseThrow(() -> new NotFoundException("Driver not found"));
+
         existing.setFirstName(dto.firstName());
         existing.setLastName(dto.lastName());
         existing.setEmail(dto.email());
         existing.setPhoneNumber(dto.phoneNumber());
+
+        if (dto.carIds() != null) {
+            if (existing.getCarIds() != null) {
+                List<Car> oldCars = carRepository.findAllByIdIn(existing.getCarIds());
+                oldCars.forEach(car -> car.setDriverId(null));
+                carRepository.saveAll(oldCars);
+            }
+
+            List<Car> newCars = carRepository.findAllByIdIn(dto.carIds());
+            newCars.forEach(car -> car.setDriverId(existing.getId()));
+            carRepository.saveAll(newCars);
+
+            existing.setCarIds(newCars.stream().map(Car::getId).toList());
+        }
+
         return driverMapper.toDto(driverRepository.save(existing));
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public DriverDto getDriverById(Long id) {
+    public DriverDto getDriverById(String id) {
         return driverRepository.findByIdAndDeletedFalse(id)
                 .map(driverMapper::toDto)
-                .orElseThrow(() -> new EntityNotFoundException("Driver not found"));
+                .orElseThrow(() -> new NotFoundException("Driver not found"));
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<DriverDto> getAllDrivers() {
         return driverMapper.toDtoList(driverRepository.findAllByDeletedFalse());
     }
 
     @Override
-    @Transactional
-    public void deleteDriver(Long id) {
+    public void deleteDriver(String id) {
         Driver existing = driverRepository.findByIdAndDeletedFalse(id)
-                .orElseThrow(() -> new EntityNotFoundException("Driver not found"));
+                .orElseThrow(() -> new NotFoundException("Driver not found"));
         existing.setDeleted(true);
         driverRepository.save(existing);
     }

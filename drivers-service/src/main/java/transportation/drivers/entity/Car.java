@@ -1,32 +1,26 @@
 package transportation.drivers.entity;
 
-import jakarta.persistence.*;
-@Entity
-@Table(name = "cars")
-public class Car {
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+import java.util.Date;
 
-    @Column(nullable = false, length = 50)
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Document(collection = "cars")
+public class Car extends BaseEntity {
+
+    private String carId;
     private String color;
-
-    @Column(nullable = false, length = 100)
     private String brand;
-
-    @Column(nullable = false, unique = true, length = 10)
     private String licensePlate;
 
-    @Column(nullable = false)
-    private boolean deleted = false;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "driver_id")
-    private Driver driver;
-
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    private String driverId;
 
     public String getColor() { return color; }
     public void setColor(String color) { this.color = color; }
@@ -37,9 +31,17 @@ public class Car {
     public String getLicensePlate() { return licensePlate; }
     public void setLicensePlate(String licensePlate) { this.licensePlate = licensePlate; }
 
-    public boolean isDeleted() { return deleted; }
-    public void setDeleted(boolean deleted) { this.deleted = deleted; }
+    public String getDriverId() { return driverId; }
+    public void setDriverId(String driverId) { this.driverId = driverId; }
 
-    public Driver getDriver() { return driver; }
-    public void setDriver(Driver driver) { this.driver = driver; }
+    public String getCarId() { return carId; }
+    public void setCarId(String carId) { this.carId = carId; }
+
+    public String getId() { return super.getId(); }
+    public boolean isDeleted() { return super.isDeleted(); }
+    public void setDeleted(boolean deleted) { super.setDeleted(deleted); }
+    public Date getCreatedAt() { return super.getCreatedAt(); }
+    public void setCreatedAt(Date createdAt) { super.setCreatedAt(createdAt); }
+    public Date getUpdatedAt() { return super.getUpdatedAt(); }
+    public void setUpdatedAt(Date updatedAt) { super.setUpdatedAt(updatedAt); }
 }

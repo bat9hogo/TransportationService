@@ -14,7 +14,7 @@ It consists of the following modules:
 - Java 21
 - Maven
 - Docker & Docker Compose
-- PostgreSQL (via Docker)
+- PostgreSQL, MongoDB (via Docker)
 - MapStruct
 - Flyway
 - SpringBoot(3.x+)

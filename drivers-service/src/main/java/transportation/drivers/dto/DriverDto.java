@@ -9,7 +9,7 @@ import jakarta.validation.constraints.Size;
 import java.util.List;
 
 public record DriverDto(
-        Long id,
+        String id,
 
         @NotBlank(message = "First name is required")
         @Size(max = 100, message = "First name must be less than 100 characters")
@@ -27,5 +27,5 @@ public record DriverDto(
         String phoneNumber,
 
         @Schema(hidden = true)
-        List<CarDto> cars
+        List<String> carIds
 ) {}

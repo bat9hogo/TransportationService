@@ -1,37 +1,29 @@
 package transportation.drivers.entity;
 
-import jakarta.persistence.*;
-import java.util.ArrayList;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.time.OffsetDateTime;
+import java.util.Date;
 import java.util.List;
 
-@Entity
-@Table(name = "drivers")
-public class Driver {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Document(collection = "drivers")
+public class Driver extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false, length = 100)
+    private String driverId;
     private String firstName;
-
-    @Column(nullable = false, length = 100)
     private String lastName;
-
-    @Column(nullable = false, unique = true)
     private String email;
-
-    @Column(nullable = false, unique = true)
     private String phoneNumber;
 
-    @Column(nullable = false)
-    private boolean deleted = false;
-
-    @OneToMany(mappedBy = "driver", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Car> cars = new ArrayList<>();
-
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    private List<String> carIds;
 
     public String getFirstName() { return firstName; }
     public void setFirstName(String firstName) { this.firstName = firstName; }
@@ -45,9 +37,17 @@ public class Driver {
     public String getPhoneNumber() { return phoneNumber; }
     public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
 
-    public boolean isDeleted() { return deleted; }
-    public void setDeleted(boolean deleted) { this.deleted = deleted; }
+    public List<String> getCarIds() { return carIds; }
+    public void setCarIds(List<String> carIds) { this.carIds = carIds; }
 
-    public List<Car> getCars() { return cars; }
-    public void setCars(List<Car> cars) { this.cars = cars; }
+    public String getDriverId() { return driverId; }
+    public void setDriverId(String driverId) { this.driverId = driverId; }
+
+    public String getId() { return super.getId(); }
+    public boolean isDeleted() { return super.isDeleted(); }
+    public void setDeleted(boolean deleted) { super.setDeleted(deleted); }
+    public Date getCreatedAt() { return super.getCreatedAt(); }
+    public void setCreatedAt(Date createdAt) { super.setCreatedAt(createdAt); }
+    public Date getUpdatedAt() { return super.getUpdatedAt(); }
+    public void setUpdatedAt(Date updatedAt) { super.setUpdatedAt(updatedAt); }
 }

@@ -9,7 +9,7 @@ public class PassengersServiceApplication {
 
     public static void main(String[] args) {
 
-        Dotenv dotenv = Dotenv.load();
+        Dotenv dotenv = Dotenv.configure().directory("passengers-service").load();
 
         System.setProperty("POSTGRES_DB", dotenv.get("POSTGRES_DB"));
         System.setProperty("POSTGRES_USER", dotenv.get("POSTGRES_USER"));

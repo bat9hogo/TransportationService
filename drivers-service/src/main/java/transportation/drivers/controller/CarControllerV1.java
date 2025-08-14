@@ -1,12 +1,10 @@
 package transportation.drivers.controller;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import transportation.drivers.dto.CarDto;
 import transportation.drivers.service.CarService;
-import transportation.drivers.service.DriverService;
 
 import java.util.List;
 
@@ -26,16 +24,16 @@ public class CarControllerV1 {
         return ResponseEntity.ok(created);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<CarDto> updateCar(@PathVariable("id") Long id,
+    @PutMapping("/{carId}")
+    public ResponseEntity<CarDto> updateCar(@PathVariable("carId") String carId,
                                             @Valid @RequestBody CarDto dto) {
-        CarDto updated = carService.updateCar(id, dto);
+        CarDto updated = carService.updateCar(carId, dto);
         return ResponseEntity.ok(updated);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<CarDto> getCarById(@PathVariable("id") Long id) {
-        CarDto car = carService.getCarById(id);
+    @GetMapping("/{carId}")
+    public ResponseEntity<CarDto> getCarById(@PathVariable("carId") String carId) {
+        CarDto car = carService.getCarById(carId);
         return ResponseEntity.ok(car);
     }
 
@@ -45,9 +43,9 @@ public class CarControllerV1 {
         return ResponseEntity.ok(cars);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCar(@PathVariable("id") Long id) {
-        carService.deleteCar(id);
+    @DeleteMapping("/{carId}")
+    public ResponseEntity<Void> deleteCar(@PathVariable("carId") String carId) {
+        carService.deleteCar(carId);
         return ResponseEntity.noContent().build();
     }
 }

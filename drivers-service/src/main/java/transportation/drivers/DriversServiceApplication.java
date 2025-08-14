@@ -9,12 +9,15 @@ public class DriversServiceApplication {
 
     public static void main(String[] args) {
 
-        Dotenv dotenv = Dotenv.load();
+        Dotenv dotenv = Dotenv.configure()
+                .directory("D:/Java/TransportationService/drivers-service")
+                .load();
 
-        System.setProperty("POSTGRES_DB", dotenv.get("POSTGRES_DB"));
-        System.setProperty("POSTGRES_USER", dotenv.get("POSTGRES_USER"));
-        System.setProperty("POSTGRES_PASSWORD", dotenv.get("POSTGRES_PASSWORD"));
-        System.setProperty("POSTGRES_PORT", dotenv.get("POSTGRES_PORT"));
+        System.setProperty("spring.data.mongodb.host", dotenv.get("MONGO_HOST"));
+        System.setProperty("spring.data.mongodb.port", dotenv.get("MONGO_PORT"));
+        System.setProperty("spring.data.mongodb.database", dotenv.get("MONGO_DB"));
+        System.setProperty("spring.data.mongodb.username", dotenv.get("MONGO_USER"));
+        System.setProperty("spring.data.mongodb.password", dotenv.get("MONGO_PASSWORD"));
 
         SpringApplication.run(DriversServiceApplication.class, args);
     }

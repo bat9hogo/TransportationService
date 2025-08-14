@@ -23,11 +23,3 @@ http://localhost:YOUR_PORT/api/YOUR_VERSION/cars...
 ```bash
 http://localhost:YOUR_PORT/swagger-ui.html
 ```
-
-## Database
-
-- Flyway migrations are located in:
-```bash
-src/main/resources/db/migration
-```
-- The service automatically applies migrations on startup.

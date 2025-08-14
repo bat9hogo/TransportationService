@@ -1,7 +1,6 @@
 package transportation.drivers.controller;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import transportation.drivers.dto.DriverDto;
@@ -25,16 +24,16 @@ public class DriverControllerV1 {
         return ResponseEntity.ok(created);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<DriverDto> updateDriver(@PathVariable("id") Long id,
+    @PutMapping("/{driverId}")
+    public ResponseEntity<DriverDto> updateDriver(@PathVariable("driverId") String driverId,
                                                   @Valid @RequestBody DriverDto dto) {
-        DriverDto updated = driverService.updateDriver(id, dto);
+        DriverDto updated = driverService.updateDriver(driverId, dto);
         return ResponseEntity.ok(updated);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<DriverDto> getDriverById(@PathVariable("id") Long id) {
-        DriverDto driver = driverService.getDriverById(id);
+    @GetMapping("/{driverId}")
+    public ResponseEntity<DriverDto> getDriverById(@PathVariable("driverId") String driverId) {
+        DriverDto driver = driverService.getDriverById(driverId);
         return ResponseEntity.ok(driver);
     }
 
@@ -44,9 +43,9 @@ public class DriverControllerV1 {
         return ResponseEntity.ok(drivers);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteDriver(@PathVariable("id") Long id) {
-        driverService.deleteDriver(id);
+    @DeleteMapping("/{driverId}")
+    public ResponseEntity<Void> deleteDriver(@PathVariable("driverId") String driverId) {
+        driverService.deleteDriver(driverId);
         return ResponseEntity.noContent().build();
     }
 }

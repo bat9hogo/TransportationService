@@ -1,12 +1,13 @@
 package transportation.drivers.repository;
 
 import transportation.drivers.entity.Driver;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface DriverRepository extends JpaRepository<Driver, Long> {
-    Optional<Driver> findByIdAndDeletedFalse(Long id);
+public interface DriverRepository extends MongoRepository<Driver, String> {
+
+    Optional<Driver> findByIdAndDeletedFalse(String driverId);
     List<Driver> findAllByDeletedFalse();
 }

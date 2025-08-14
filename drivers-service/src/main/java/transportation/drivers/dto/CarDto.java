@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public record CarDto(
-        Long id,
+        String id,
 
         @NotBlank(message = "Color is required")
         @Size(max = 50, message = "Color must be less than 50 characters")
@@ -16,9 +16,10 @@ public record CarDto(
         String brand,
 
         @NotBlank(message = "License plate is required")
-        @Pattern(
+        @Pattern
+                (
                 regexp = "^[0-9]{4}\\s?[A-Z]{2}-[1-7]$",
                 message = "License plate must match Belarus format (e.g., 1234 AB-7)"
-        )
+                )
         String licensePlate
 ) {}
