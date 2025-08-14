@@ -1,11 +1,11 @@
-package transportation.passengers;
+package transportation.drivers;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class PassengersServiceApplication {
+public class DriversServiceApplication {
 
     public static void main(String[] args) {
 
@@ -16,6 +16,6 @@ public class PassengersServiceApplication {
         System.setProperty("POSTGRES_PASSWORD", dotenv.get("POSTGRES_PASSWORD"));
         System.setProperty("POSTGRES_PORT", dotenv.get("POSTGRES_PORT"));
 
-        SpringApplication.run(PassengersServiceApplication.class, args);
+        SpringApplication.run(DriversServiceApplication.class, args);
     }
 }
