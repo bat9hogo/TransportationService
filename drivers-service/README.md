@@ -1,4 +1,5 @@
 # DriversService
+MongoDB-based driver service
 
 1. Ensure `.env` is set with database credentials.
 2. Start the database:
@@ -9,7 +10,7 @@ docker-compose up -d
 ```bash
 mvn spring-boot:run
 ```
-or in IDE.
+   or in IDE.
 ## Endpoints
 
 - REST endpoint are available at:
