@@ -1,5 +1,5 @@
 # TripsService
-Cassandra-based trips service
+Cassandra-based trips service.
 
 1. Ensure `.env` is set with database credentials.
 2. Start the database:
@@ -42,7 +42,7 @@ http://localhost:YOUR_PORT/swagger-ui.html
 
 ## Database
 
-- Flyway migrations are located in:
+- Migrations are located in:
 ```bash
 src/main/resources/cassandra/migration
 ```

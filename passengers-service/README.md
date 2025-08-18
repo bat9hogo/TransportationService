@@ -1,5 +1,5 @@
 # PassengersService
-A Postgresql-based passengers service
+A Postgresql-based passengers service.
 
 1. Ensure `.env` is set with database credentials.
 2. Start the database:

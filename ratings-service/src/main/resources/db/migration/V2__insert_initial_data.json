@@ -1,0 +1,22 @@
+[
+  {
+    "tripId": "trip-1",
+    "driverId": "driver-1",
+    "passengerId": "passenger-1",
+    "score": 5,
+    "comment": "Отличная поездка!",
+    "deleted": false,
+    "createdAt": "2025-08-18T10:00:00",
+    "updatedAt": "2025-08-18T10:00:00"
+  },
+  {
+    "tripId": "trip-2",
+    "driverId": "driver-2",
+    "passengerId": "passenger-2",
+    "score": 4,
+    "comment": "Всё прошло хорошо",
+    "deleted": false,
+    "createdAt": "2025-08-18T11:00:00",
+    "updatedAt": "2025-08-18T11:00:00"
+  }
+]

@@ -39,8 +39,9 @@ build/
 
 # Environment
 passengers-service/.env
-passengers-service/.env
 drivers-service/.env
+trips-service/.env
+ratings-service/.env
 
 # Logs
 *.log
