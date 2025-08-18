@@ -1,5 +1,7 @@
 package transportation.ratings.dto;
 
+import transportation.ratings.entity.AuthorType;
+
 import java.util.Date;
 
 public class RatingResponseDto {
@@ -13,6 +15,7 @@ public class RatingResponseDto {
     private boolean deleted;
     private Date createdAt;
     private Date updatedAt;
+    private AuthorType authorType;
 
     public RatingResponseDto() {}
 
@@ -42,4 +45,7 @@ public class RatingResponseDto {
 
     public Date getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(Date updatedAt) { this.updatedAt = updatedAt; }
+
+    public AuthorType getAuthorType() { return authorType; }
+    public void setAuthorType(AuthorType authorType) { this.authorType = authorType; }
 }

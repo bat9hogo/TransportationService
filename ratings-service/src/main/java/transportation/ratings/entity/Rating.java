@@ -37,6 +37,9 @@ public class Rating {
     @Field(type = FieldType.Date)
     private Date updatedAt;
 
+    @Field(type = FieldType.Keyword)
+    private AuthorType authorType;
+
     public Rating() {}
 
     public Rating(String id, String tripId, String driverId, String passengerId,
@@ -79,4 +82,7 @@ public class Rating {
 
     public Date getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(Date updatedAt) { this.updatedAt = updatedAt; }
+
+    public AuthorType getAuthorType() { return authorType; }
+    public void setAuthorType(AuthorType authorType) { this.authorType = authorType; }
 }

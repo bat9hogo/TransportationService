@@ -16,7 +16,9 @@ public interface RatingMapper {
     @Mapping(target = "deleted", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "authorType", source = "authorType")
     Rating toEntity(RatingRequestDto dto);
 
+    @Mapping(target = "authorType", source = "authorType")
     RatingResponseDto toDto(Rating rating);
 }

@@ -5,6 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 import transportation.ratings.dto.RatingRequestDto;
 import transportation.ratings.dto.RatingResponseDto;
 import transportation.ratings.dto.RatingUpdateDto;
+import transportation.ratings.entity.AuthorType;
 import transportation.ratings.entity.Rating;
 import transportation.ratings.exception.RatingNotFoundException;
 import transportation.ratings.mapper.RatingMapper;
@@ -29,11 +30,28 @@ public class RatingServiceImpl implements RatingService {
 
     @Override
     public RatingResponseDto createRating(RatingRequestDto requestDto) {
+        if ((requestDto.getDriverId() == null || requestDto.getDriverId().trim().isEmpty()) &&
+                (requestDto.getPassengerId() == null || requestDto.getPassengerId().trim().isEmpty()) &&
+                requestDto.getAuthorType() == null) {
+        }
+
         Rating rating = ratingMapper.toEntity(requestDto);
         Date now = new Date();
         rating.setCreatedAt(now);
         rating.setUpdatedAt(now);
         rating.setDeleted(false);
+
+        if (requestDto.getAuthorType() != null) {
+            rating.setAuthorType(requestDto.getAuthorType());
+        } else if ((requestDto.getPassengerId() != null && !requestDto.getPassengerId().trim().isEmpty()) &&
+                (requestDto.getDriverId() == null || requestDto.getDriverId().trim().isEmpty())) {
+            rating.setAuthorType(AuthorType.PASSENGER);
+        } else if ((requestDto.getDriverId() != null && !requestDto.getDriverId().trim().isEmpty()) &&
+                (requestDto.getPassengerId() == null || requestDto.getPassengerId().trim().isEmpty())) {
+            rating.setAuthorType(AuthorType.DRIVER);
+        } else {
+            rating.setAuthorType(null);
+        }
 
         Rating saved = ratingRepository.save(rating);
         return ratingMapper.toDto(saved);

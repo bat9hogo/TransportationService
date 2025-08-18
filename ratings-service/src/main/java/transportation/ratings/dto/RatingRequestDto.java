@@ -1,16 +1,14 @@
 package transportation.ratings.dto;
 
 import jakarta.validation.constraints.*;
+import transportation.ratings.entity.AuthorType;
 
 public class RatingRequestDto {
 
     @NotBlank(message = "tripId is required")
     private String tripId;
 
-    @NotBlank(message = "driverId is required")
     private String driverId;
-
-    @NotBlank(message = "passengerId is required")
     private String passengerId;
 
     @NotNull(message = "score is required")
@@ -19,6 +17,7 @@ public class RatingRequestDto {
     private Integer score;
 
     private String comment;
+    private AuthorType authorType;
 
     public RatingRequestDto() {}
 
@@ -36,4 +35,7 @@ public class RatingRequestDto {
 
     public String getComment() { return comment; }
     public void setComment(String comment) { this.comment = comment; }
+
+    public AuthorType getAuthorType() { return authorType; }
+    public void setAuthorType(AuthorType authorType) { this.authorType = authorType; }
 }
