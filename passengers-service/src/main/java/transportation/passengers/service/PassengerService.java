@@ -1,18 +1,20 @@
 package transportation.passengers.service;
 
-import transportation.passengers.dto.PassengerDto;
+import transportation.passengers.dto.PassengerRequestDto;
+import transportation.passengers.dto.PassengerResponseDto;
+import transportation.passengers.dto.PassengerUpdateDto;
 
 import java.util.List;
 
 public interface PassengerService {
 
-    PassengerDto createPassenger(PassengerDto dto);
+    PassengerResponseDto createPassenger(PassengerRequestDto dto);
 
-    PassengerDto getPassengerById(Long id);
+    PassengerResponseDto getPassengerById(Long id);
 
-    List<PassengerDto> getAllPassengers();
+    List<PassengerResponseDto> getAllPassengers();
 
-    PassengerDto updatePassenger(Long id, PassengerDto dto);
+    PassengerResponseDto updatePassenger(Long id, PassengerUpdateDto dto);
 
     void deletePassenger(Long id);
 }

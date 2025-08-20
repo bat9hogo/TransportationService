@@ -1,14 +1,17 @@
 package transportation.passengers.service;
 
-import transportation.passengers.dto.PassengerDto;
-import transportation.passengers.entity.Passenger;
-import transportation.passengers.mapper.PassengerMapper;
-import transportation.passengers.repository.PassengerRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import transportation.passengers.dto.PassengerRequestDto;
+import transportation.passengers.dto.PassengerResponseDto;
+import transportation.passengers.dto.PassengerUpdateDto;
+import transportation.passengers.entity.Passenger;
+import transportation.passengers.mapper.PassengerMapper;
+import transportation.passengers.repository.PassengerRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,40 +27,66 @@ public class PassengerServiceImpl implements PassengerService {
 
     @Override
     @Transactional
-    public PassengerDto createPassenger(PassengerDto dto) {
+    public PassengerResponseDto createPassenger(PassengerRequestDto dto) {
+        Optional<Passenger> byEmail = repository.findByEmail(dto.getEmail());
+        if (byEmail.isPresent()) {
+            Passenger existing = byEmail.get();
+            if (existing.isDeleted()) {
+                existing.setDeleted(false);
+                existing.setFirstName(dto.getFirstName());
+                existing.setLastName(dto.getLastName());
+                existing.setPhoneNumber(dto.getPhoneNumber());
+                return mapper.toResponseDto(repository.save(existing));
+            } else {
+                throw new IllegalArgumentException("Email also used");
+            }
+        }
+
+        Optional<Passenger> byPhone = repository.findByPhoneNumber(dto.getPhoneNumber());
+        if (byPhone.isPresent()) {
+            Passenger existing = byPhone.get();
+            if (existing.isDeleted()) {
+                existing.setDeleted(false);
+                existing.setFirstName(dto.getFirstName());
+                existing.setLastName(dto.getLastName());
+                existing.setEmail(dto.getEmail());
+                return mapper.toResponseDto(repository.save(existing));
+            } else {
+                throw new IllegalArgumentException("Phone number also used");
+            }
+        }
+
         Passenger entity = mapper.toEntity(dto);
         Passenger saved = repository.save(entity);
-        return mapper.toDto(saved);
+        return mapper.toResponseDto(saved);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public PassengerDto getPassengerById(Long id) {
+    public PassengerResponseDto getPassengerById(Long id) {
         Passenger entity = repository.findById(id)
                 .filter(p -> !p.isDeleted())
                 .orElseThrow(() -> new EntityNotFoundException("Passenger not found with id " + id));
-        return mapper.toDto(entity);
+        return mapper.toResponseDto(entity);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<PassengerDto> getAllPassengers() {
+    public List<PassengerResponseDto> getAllPassengers() {
         return repository.findAllByDeletedFalse().stream()
-                .map(mapper::toDto)
-                .toList();
+                .map(mapper::toResponseDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
-    public PassengerDto updatePassenger(Long id, PassengerDto dto) {
+    public PassengerResponseDto updatePassenger(Long id, PassengerUpdateDto dto) {
         Passenger entity = repository.findById(id)
                 .filter(p -> !p.isDeleted())
                 .orElseThrow(() -> new EntityNotFoundException("Passenger not found with id " + id));
-        entity.setFirstName(dto.firstName());
-        entity.setLastName(dto.lastName());
-        entity.setEmail(dto.email());
-        entity.setPhoneNumber(dto.phoneNumber());
-        return mapper.toDto(repository.save(entity));
+
+        mapper.updateEntityFromDto(dto, entity);
+        return mapper.toResponseDto(repository.save(entity));
     }
 
     @Override
@@ -70,4 +99,3 @@ public class PassengerServiceImpl implements PassengerService {
         repository.save(entity);
     }
 }
-

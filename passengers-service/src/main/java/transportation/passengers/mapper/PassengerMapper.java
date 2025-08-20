@@ -1,14 +1,31 @@
 package transportation.passengers.mapper;
 
-import transportation.passengers.dto.PassengerDto;
-import transportation.passengers.entity.Passenger;
 import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import transportation.passengers.dto.*;
+import transportation.passengers.entity.Passenger;
+
+import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface PassengerMapper {
 
-    PassengerDto toDto(Passenger entity);
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "deleted", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    Passenger toEntity(PassengerRequestDto dto);
 
-    Passenger toEntity(PassengerDto dto);
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "email", ignore = true)
+    @Mapping(target = "deleted", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    void updateEntityFromDto(PassengerUpdateDto dto, @MappingTarget Passenger passenger);
+
+    PassengerResponseDto toResponseDto(Passenger passenger);
+
+    List<PassengerResponseDto> toResponseDtoList(List<Passenger> passengers);
 }
+
