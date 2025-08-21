@@ -3,9 +3,9 @@ package transportation.passengers.service;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import transportation.passengers.dto.PassengerRequestDto;
+import transportation.passengers.dto.CreatePassengerRequestDto;
 import transportation.passengers.dto.PassengerResponseDto;
-import transportation.passengers.dto.PassengerUpdateDto;
+import transportation.passengers.dto.UpdatePassengerRequestDto;
 import transportation.passengers.entity.Passenger;
 import transportation.passengers.exception.PassengerConflictException;
 import transportation.passengers.mapper.PassengerMapper;
@@ -27,7 +27,7 @@ public class PassengerServiceImpl implements PassengerService {
     }
 
     @Transactional
-    public PassengerResponseDto createPassenger(PassengerRequestDto dto) {
+    public PassengerResponseDto createPassenger(CreatePassengerRequestDto dto) {
         Passenger restoredPassenger = restoreDeletedPassenger(dto);
         if (restoredPassenger != null) {
             return passengerMapper.toResponseDto(restoredPassenger);
@@ -57,7 +57,7 @@ public class PassengerServiceImpl implements PassengerService {
 
     @Override
     @Transactional
-    public PassengerResponseDto updatePassenger(Long id, PassengerUpdateDto passengerUpdate) {
+    public PassengerResponseDto updatePassenger(Long id, UpdatePassengerRequestDto passengerUpdate) {
         Passenger passenger = passengerRepository.findById(id)
                 .filter(p -> !p.isDeleted())
                 .orElseThrow(() -> new EntityNotFoundException("Passenger not found with id " + id));
@@ -78,7 +78,7 @@ public class PassengerServiceImpl implements PassengerService {
     }
 
 
-    private Passenger restoreDeletedPassenger(PassengerRequestDto dto) {
+    private Passenger restoreDeletedPassenger(CreatePassengerRequestDto dto) {
         Passenger deletedPassengerToRestore = null;
 
         if (dto.email() != null && !dto.email().isBlank()) {

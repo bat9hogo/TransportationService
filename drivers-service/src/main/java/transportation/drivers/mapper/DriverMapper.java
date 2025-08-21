@@ -3,9 +3,9 @@ package transportation.drivers.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import transportation.drivers.dto.DriverRequestDto;
+import transportation.drivers.dto.CreateDriverRequestDto;
 import transportation.drivers.dto.DriverResponseDto;
-import transportation.drivers.dto.DriverUpdateDto;
+import transportation.drivers.dto.UpdateDriverRequestDto;
 import transportation.drivers.entity.Driver;
 
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface DriverMapper {
 
-    Driver toEntity(DriverRequestDto dto);
+    Driver toEntity(CreateDriverRequestDto dto);
 
     DriverResponseDto toResponseDto(Driver driver);
 
@@ -21,5 +21,5 @@ public interface DriverMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "deleted", ignore = true)
-    void updateEntityFromDto(DriverUpdateDto dto, @MappingTarget Driver driver);
+    void updateEntityFromDto(UpdateDriverRequestDto dto, @MappingTarget Driver driver);
 }

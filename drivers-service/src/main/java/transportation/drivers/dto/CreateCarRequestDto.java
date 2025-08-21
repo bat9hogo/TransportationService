@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.Pattern;
 
-public record CarRequestDto(
+public record CreateCarRequestDto(
         @NotBlank(message = "Color is required")
         @Size(max = 50, message = "Color must be less than 50 characters")
         String color,

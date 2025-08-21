@@ -1,16 +1,16 @@
 package transportation.drivers.service;
 
-import transportation.drivers.dto.CarRequestDto;
-import transportation.drivers.dto.CarUpdateDto;
+import transportation.drivers.dto.CreateCarRequestDto;
+import transportation.drivers.dto.UpdateCarRequestDto;
 import transportation.drivers.dto.CarResponseDto;
 
 import java.util.List;
 
 public interface CarService {
 
-    CarResponseDto createCar(CarRequestDto dto);
+    CarResponseDto createCar(CreateCarRequestDto dto);
 
-    CarResponseDto updateCar(String id, CarUpdateDto dto);
+    CarResponseDto updateCar(String id, UpdateCarRequestDto dto);
 
     CarResponseDto getCarById(String id);
 

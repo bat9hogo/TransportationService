@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import transportation.drivers.dto.CarRequestDto;
-import transportation.drivers.dto.CarUpdateDto;
+import transportation.drivers.dto.CreateCarRequestDto;
+import transportation.drivers.dto.UpdateCarRequestDto;
 import transportation.drivers.dto.CarResponseDto;
 import transportation.drivers.service.CarService;
 
@@ -29,7 +29,7 @@ public class CarController {
     }
 
     @PostMapping
-    public ResponseEntity<CarResponseDto> createCar(@Valid @RequestBody CarRequestDto dto) {
+    public ResponseEntity<CarResponseDto> createCar(@Valid @RequestBody CreateCarRequestDto dto) {
         CarResponseDto created = carService.createCar(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
@@ -37,7 +37,7 @@ public class CarController {
     @PutMapping("/{carId}")
     public ResponseEntity<CarResponseDto> updateCar(
             @PathVariable("carId") String carId,
-            @Valid @RequestBody CarUpdateDto dto
+            @Valid @RequestBody UpdateCarRequestDto dto
     ) {
         CarResponseDto updated = carService.updateCar(carId, dto);
         return ResponseEntity.ok(updated);

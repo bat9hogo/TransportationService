@@ -1,7 +1,7 @@
 package transportation.passengers.controller;
 
-import transportation.passengers.dto.PassengerRequestDto;
-import transportation.passengers.dto.PassengerUpdateDto;
+import transportation.passengers.dto.CreatePassengerRequestDto;
+import transportation.passengers.dto.UpdatePassengerRequestDto;
 import transportation.passengers.dto.PassengerResponseDto;
 import transportation.passengers.service.PassengerService;
 import jakarta.validation.Valid;
@@ -29,7 +29,7 @@ public class PassengerController {
 
     @PostMapping
     public ResponseEntity<PassengerResponseDto> createPassenger(
-            @Valid @RequestBody PassengerRequestDto dto
+            @Valid @RequestBody CreatePassengerRequestDto dto
     ) {
         PassengerResponseDto created = service.createPassenger(dto);
         return ResponseEntity.ok(created);
@@ -50,7 +50,7 @@ public class PassengerController {
     @PutMapping("/{id}")
     public ResponseEntity<PassengerResponseDto> updatePassenger(
             @PathVariable("id") Long id,
-            @Valid @RequestBody PassengerUpdateDto dto
+            @Valid @RequestBody UpdatePassengerRequestDto dto
     ) {
         PassengerResponseDto updated = service.updatePassenger(id, dto);
         return ResponseEntity.ok(updated);

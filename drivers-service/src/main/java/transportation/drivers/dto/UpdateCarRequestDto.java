@@ -3,7 +3,7 @@ package transportation.drivers.dto;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-public record CarUpdateDto(
+public record UpdateCarRequestDto(
         @Size(max = 50, message = "Color must be less than 50 characters")
         String color,
 

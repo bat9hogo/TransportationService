@@ -2,10 +2,10 @@ package transportation.drivers.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import transportation.drivers.dto.CarRequestDto;
-import transportation.drivers.dto.DriverRequestDto;
+import transportation.drivers.dto.CreateCarRequestDto;
+import transportation.drivers.dto.CreateDriverRequestDto;
 import transportation.drivers.dto.DriverResponseDto;
-import transportation.drivers.dto.DriverUpdateDto;
+import transportation.drivers.dto.UpdateDriverRequestDto;
 import transportation.drivers.entity.Car;
 import transportation.drivers.entity.Driver;
 import transportation.drivers.exception.DriverConflictException;
@@ -44,7 +44,7 @@ public class DriverServiceImpl implements DriverService {
 
     @Override
     @Transactional
-    public DriverResponseDto createDriver(DriverRequestDto dto) {
+    public DriverResponseDto createDriver(CreateDriverRequestDto dto) {
         Driver restoredDriver = restoreDeletedDriver(dto);
         Driver driver = restoredDriver != null ? restoredDriver : driverMapper.toEntity(dto);
         driver = driverRepository.save(driver);
@@ -57,7 +57,7 @@ public class DriverServiceImpl implements DriverService {
 
     @Override
     @Transactional
-    public DriverResponseDto updateDriver(String driverId, DriverUpdateDto dto) {
+    public DriverResponseDto updateDriver(String driverId, UpdateDriverRequestDto dto) {
         Driver driver = driverRepository.findByIdAndDeletedFalse(driverId)
                 .orElseThrow(() -> new NotFoundException("Driver not found with id " + driverId));
 
@@ -99,7 +99,7 @@ public class DriverServiceImpl implements DriverService {
         carRepository.saveAll(cars);
     }
 
-    private Driver restoreDeletedDriver(DriverRequestDto dto) {
+    private Driver restoreDeletedDriver(CreateDriverRequestDto dto) {
         Driver deletedDriverToRestore = null;
 
         if (dto.email() != null && !dto.email().isBlank()) {
@@ -135,7 +135,7 @@ public class DriverServiceImpl implements DriverService {
         return null;
     }
 
-    private void handleCars(Driver driver, List<String> carIds, List<CarRequestDto> carsToCreate) {
+    private void handleCars(Driver driver, List<String> carIds, List<CreateCarRequestDto> carsToCreate) {
         List<String> finalCarIds = new ArrayList<>();
 
         if (driver.getCarIds() != null && !driver.getCarIds().isEmpty()) {
@@ -156,7 +156,7 @@ public class DriverServiceImpl implements DriverService {
         }
 
         if (carsToCreate != null && !carsToCreate.isEmpty()) {
-            for (CarRequestDto carDto : carsToCreate) {
+            for (CreateCarRequestDto carDto : carsToCreate) {
                 if (carDto.licensePlate() == null || !LICENSE_PLATE_PATTERN.matcher(carDto.licensePlate()).matches()) {
                     throw new DriverConflictException("Invalid license plate format: " + carDto.licensePlate());
                 }
@@ -169,7 +169,7 @@ public class DriverServiceImpl implements DriverService {
         driver.setCarIds(finalCarIds);
     }
 
-    private Car createOrRestoreCar(CarRequestDto dto, String driverId) {
+    private Car createOrRestoreCar(CreateCarRequestDto dto, String driverId) {
         Car car = carRepository.findByLicensePlateAndDeletedFalse(dto.licensePlate()).orElseGet(() -> carMapper.toEntity(dto));
 
         if (car.isDeleted()) car.setDeleted(false);

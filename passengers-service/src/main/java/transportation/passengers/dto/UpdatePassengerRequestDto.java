@@ -3,7 +3,7 @@ package transportation.passengers.dto;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-public record PassengerUpdateDto(
+public record UpdatePassengerRequestDto(
         @Size(max = 100, message = "First name must be less than 100 characters")
         String firstName,
 

@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import transportation.drivers.dto.CreateDriverRequestDto;
 import transportation.drivers.dto.DriverResponseDto;
-import transportation.drivers.dto.DriverRequestDto;
-import transportation.drivers.dto.DriverUpdateDto;
+import transportation.drivers.dto.UpdateDriverRequestDto;
 import transportation.drivers.service.DriverService;
 
 import java.util.List;
@@ -29,7 +29,7 @@ public class DriverController {
     }
 
     @PostMapping
-    public ResponseEntity<DriverResponseDto> createDriver(@Valid @RequestBody DriverRequestDto dto) {
+    public ResponseEntity<DriverResponseDto> createDriver(@Valid @RequestBody CreateDriverRequestDto dto) {
         DriverResponseDto created = driverService.createDriver(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
@@ -37,7 +37,7 @@ public class DriverController {
     @PutMapping("/{driverId}")
     public ResponseEntity<DriverResponseDto> updateDriver(
             @PathVariable("driverId") String driverId,
-            @Valid @RequestBody DriverUpdateDto dto
+            @Valid @RequestBody UpdateDriverRequestDto dto
     ) {
         DriverResponseDto updated = driverService.updateDriver(driverId, dto);
         return ResponseEntity.ok(updated);

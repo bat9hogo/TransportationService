@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Pattern;
 
 import java.util.List;
 
-public record DriverUpdateDto(
+public record UpdateDriverRequestDto(
         String firstName,
         String lastName,
 
@@ -16,5 +16,5 @@ public record DriverUpdateDto(
         String phoneNumber,
 
         List<String> carIds,
-        List<CarRequestDto> carsToCreate
+        List<CreateCarRequestDto> carsToCreate
 ) {}

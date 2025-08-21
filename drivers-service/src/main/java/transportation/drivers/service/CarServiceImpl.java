@@ -2,8 +2,8 @@ package transportation.drivers.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import transportation.drivers.dto.CarRequestDto;
-import transportation.drivers.dto.CarUpdateDto;
+import transportation.drivers.dto.CreateCarRequestDto;
+import transportation.drivers.dto.UpdateCarRequestDto;
 import transportation.drivers.dto.CarResponseDto;
 import transportation.drivers.entity.Car;
 import transportation.drivers.entity.Driver;
@@ -34,7 +34,7 @@ public class CarServiceImpl implements CarService {
 
     @Override
     @Transactional
-    public CarResponseDto createCar(CarRequestDto dto) {
+    public CarResponseDto createCar(CreateCarRequestDto dto) {
         validateLicensePlate(dto.licensePlate());
 
         Car car = carRepository.findByLicensePlateAndDeletedFalse(dto.licensePlate()).orElseGet(() -> carMapper.toEntity(dto));
@@ -58,7 +58,7 @@ public class CarServiceImpl implements CarService {
 
     @Override
     @Transactional
-    public CarResponseDto updateCar(String carId, CarUpdateDto dto) {
+    public CarResponseDto updateCar(String carId, UpdateCarRequestDto dto) {
         Car car = carRepository.findByIdAndDeletedFalse(carId)
                 .orElseThrow(() -> new NotFoundException("Car not found with id " + carId));
 

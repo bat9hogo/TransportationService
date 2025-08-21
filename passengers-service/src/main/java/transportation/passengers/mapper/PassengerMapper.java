@@ -3,9 +3,9 @@ package transportation.passengers.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import transportation.passengers.dto.PassengerRequestDto;
+import transportation.passengers.dto.CreatePassengerRequestDto;
 import transportation.passengers.dto.PassengerResponseDto;
-import transportation.passengers.dto.PassengerUpdateDto;
+import transportation.passengers.dto.UpdatePassengerRequestDto;
 import transportation.passengers.entity.Passenger;
 
 import java.util.List;
@@ -17,14 +17,14 @@ public interface PassengerMapper {
     @Mapping(target = "deleted", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    Passenger toEntity(PassengerRequestDto dto);
+    Passenger toEntity(CreatePassengerRequestDto dto);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "email", ignore = true)
     @Mapping(target = "deleted", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    void updateEntityFromDto(PassengerUpdateDto dto, @MappingTarget Passenger passenger);
+    void updateEntityFromDto(UpdatePassengerRequestDto dto, @MappingTarget Passenger passenger);
 
     PassengerResponseDto toResponseDto(Passenger passenger);
 

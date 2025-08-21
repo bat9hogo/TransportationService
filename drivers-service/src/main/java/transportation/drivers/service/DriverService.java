@@ -1,16 +1,16 @@
 package transportation.drivers.service;
 
-import transportation.drivers.dto.DriverRequestDto;
+import transportation.drivers.dto.CreateDriverRequestDto;
 import transportation.drivers.dto.DriverResponseDto;
-import transportation.drivers.dto.DriverUpdateDto;
+import transportation.drivers.dto.UpdateDriverRequestDto;
 
 import java.util.List;
 
 public interface DriverService {
 
-    DriverResponseDto createDriver(DriverRequestDto dto);
+    DriverResponseDto createDriver(CreateDriverRequestDto dto);
 
-    DriverResponseDto updateDriver(String id, DriverUpdateDto dto);
+    DriverResponseDto updateDriver(String id, UpdateDriverRequestDto dto);
 
     DriverResponseDto getDriverById(String id);
 
