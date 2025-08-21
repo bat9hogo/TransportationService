@@ -1,51 +1,23 @@
 package transportation.passengers.dto;
 
-public class PassengerRequestDto {
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
-    private String firstName;
-    private String lastName;
-    private String email;
-    private String phoneNumber;
+public record PassengerRequestDto(
+        @NotBlank(message = "First name is required")
+        @Size(max = 100, message = "First name must be less than 100 characters")
+        String firstName,
 
-    public PassengerRequestDto() {
-    }
+        @NotBlank(message = "Last name is required")
+        @Size(max = 100, message = "Last name must be less than 100 characters")
+        String lastName,
 
-    public PassengerRequestDto(String firstName, String lastName, String email, String phoneNumber) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-    }
+        @Email(message = "Invalid email format")
+        @NotBlank(message = "Email is required")
+        String email,
 
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-}
+        @Pattern(regexp = "^\\+\\d{7,15}$", message = "Phone number must be in international format")
+        String phoneNumber
+) {}

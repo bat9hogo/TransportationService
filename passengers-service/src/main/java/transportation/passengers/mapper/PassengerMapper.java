@@ -3,7 +3,9 @@ package transportation.passengers.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import transportation.passengers.dto.*;
+import transportation.passengers.dto.PassengerRequestDto;
+import transportation.passengers.dto.PassengerResponseDto;
+import transportation.passengers.dto.PassengerUpdateDto;
 import transportation.passengers.entity.Passenger;
 
 import java.util.List;
@@ -28,4 +30,3 @@ public interface PassengerMapper {
 
     List<PassengerResponseDto> toResponseDtoList(List<Passenger> passengers);
 }
-

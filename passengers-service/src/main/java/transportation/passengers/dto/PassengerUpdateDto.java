@@ -1,40 +1,15 @@
 package transportation.passengers.dto;
 
-public class PassengerUpdateDto {
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
-    private String firstName;
-    private String lastName;
-    private String phoneNumber;
+public record PassengerUpdateDto(
+        @Size(max = 100, message = "First name must be less than 100 characters")
+        String firstName,
 
-    public PassengerUpdateDto() {}
+        @Size(max = 100, message = "Last name must be less than 100 characters")
+        String lastName,
 
-    public PassengerUpdateDto(String firstName, String lastName, String phoneNumber) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.phoneNumber = phoneNumber;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-}
+        @Pattern(regexp = "^\\+\\d{7,15}$", message = "Phone number must be in international format")
+        String phoneNumber
+) {}

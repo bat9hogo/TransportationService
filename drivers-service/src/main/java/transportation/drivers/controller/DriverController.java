@@ -10,11 +10,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/drivers")
-public class DriverControllerV1 {
+public class DriverController {
 
     private final DriverService driverService;
 
-    public DriverControllerV1(DriverService driverService) {
+    public DriverController(DriverService driverService) {
         this.driverService = driverService;
     }
 

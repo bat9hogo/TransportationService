@@ -10,11 +10,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/cars")
-public class CarControllerV1 {
+public class CarController {
 
     private final CarService carService;
 
-    public CarControllerV1(CarService carService) {
+    public CarController(CarService carService) {
         this.carService = carService;
     }
 
