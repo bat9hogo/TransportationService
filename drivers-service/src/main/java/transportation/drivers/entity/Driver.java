@@ -1,16 +1,12 @@
 package transportation.drivers.entity;
 
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
 import java.util.List;
 
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+
 @Document(collection = "drivers")
 public class Driver extends BaseEntity {
 
@@ -21,6 +17,15 @@ public class Driver extends BaseEntity {
     private String phoneNumber;
 
     private List<String> carIds;
+
+    public Driver() {}
+
+    public Driver(String firstName, String lastName, String email, String phoneNumber) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+    }
 
     public String getFirstName() {
         return firstName;

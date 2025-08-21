@@ -14,5 +14,9 @@ public interface DriverRepository extends MongoRepository<Driver, String> {
 
     Optional<Driver> findByPhoneNumber(String phoneNumber);
 
+    List<Driver> findAllByEmail(String email);
+
+    List<Driver> findAllByPhoneNumber(String phoneNumber);
+
     List<Driver> findAllByDeletedFalse();
 }

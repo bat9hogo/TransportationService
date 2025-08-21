@@ -16,4 +16,5 @@ public interface CarRepository extends MongoRepository<Car, String> {
 
     List<Car> findAllByIdInAndDeletedFalse(List<String> ids);
 
+    List<Car> findByLicensePlate(String licensePlate);
 }

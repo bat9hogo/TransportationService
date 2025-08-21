@@ -3,6 +3,7 @@ package transportation.passengers.service;
 import transportation.passengers.dto.CreatePassengerRequestDto;
 import transportation.passengers.dto.PassengerResponseDto;
 import transportation.passengers.dto.UpdatePassengerRequestDto;
+import transportation.passengers.dto.RestorePassengerRequestDto;
 
 import java.util.List;
 
@@ -17,4 +18,6 @@ public interface PassengerService {
     PassengerResponseDto updatePassenger(Long id, UpdatePassengerRequestDto dto);
 
     void deletePassenger(Long id);
+
+    PassengerResponseDto restorePassenger(RestorePassengerRequestDto request);
 }

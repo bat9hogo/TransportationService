@@ -6,13 +6,12 @@ import org.springframework.transaction.annotation.Transactional;
 import transportation.passengers.dto.CreatePassengerRequestDto;
 import transportation.passengers.dto.PassengerResponseDto;
 import transportation.passengers.dto.UpdatePassengerRequestDto;
+import transportation.passengers.dto.RestorePassengerRequestDto;
 import transportation.passengers.entity.Passenger;
-import transportation.passengers.exception.PassengerConflictException;
 import transportation.passengers.mapper.PassengerMapper;
 import transportation.passengers.repository.PassengerRepository;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,12 +25,10 @@ public class PassengerServiceImpl implements PassengerService {
         this.passengerMapper = passengerMapper;
     }
 
+    @Override
     @Transactional
     public PassengerResponseDto createPassenger(CreatePassengerRequestDto dto) {
-        Passenger restoredPassenger = restoreDeletedPassenger(dto);
-        if (restoredPassenger != null) {
-            return passengerMapper.toResponseDto(restoredPassenger);
-        }
+        checkDuplicateEmailOrPhone(dto.email(), dto.phoneNumber(), null);
 
         Passenger newPassenger = passengerMapper.toEntity(dto);
         Passenger savedPassenger = passengerRepository.save(newPassenger);
@@ -57,14 +54,31 @@ public class PassengerServiceImpl implements PassengerService {
 
     @Override
     @Transactional
-    public PassengerResponseDto updatePassenger(Long id, UpdatePassengerRequestDto passengerUpdate) {
+    public PassengerResponseDto updatePassenger(Long id, UpdatePassengerRequestDto dto) {
         Passenger passenger = passengerRepository.findById(id)
                 .filter(p -> !p.isDeleted())
                 .orElseThrow(() -> new EntityNotFoundException("Passenger not found with id " + id));
 
-        passengerMapper.updateEntityFromDto(passengerUpdate, passenger);
-        Passenger updatedPassenger = passengerRepository.save(passenger);
-        return passengerMapper.toResponseDto(updatedPassenger);
+        checkDuplicateEmailOrPhone(dto.email(), dto.phoneNumber(), id);
+
+        if (dto.email() != null && !dto.email().isBlank()){
+            passenger.setEmail(dto.email());
+        }
+
+        if (dto.phoneNumber() != null && !dto.phoneNumber().isBlank()){
+            passenger.setPhoneNumber(dto.phoneNumber());
+        }
+
+        if (dto.firstName() != null){
+            passenger.setFirstName(dto.firstName());
+        }
+
+        if (dto.lastName() != null){
+            passenger.setLastName(dto.lastName());
+        }
+
+        Passenger updated = passengerRepository.save(passenger);
+        return passengerMapper.toResponseDto(updated);
     }
 
     @Override
@@ -77,58 +91,53 @@ public class PassengerServiceImpl implements PassengerService {
         passengerRepository.save(passenger);
     }
 
+    @Override
+    @Transactional
+    public PassengerResponseDto restorePassenger(RestorePassengerRequestDto request) {
+        String email = request.email();
+        String phone = request.phoneNumber();
 
-    private Passenger restoreDeletedPassenger(CreatePassengerRequestDto dto) {
-        Passenger deletedPassengerToRestore = null;
+        boolean hasEmail = email != null && !email.isBlank();
+        boolean hasPhone = phone != null && !phone.isBlank();
 
-        if (dto.email() != null && !dto.email().isBlank()) {
-            Optional<Passenger> passengerByEmail = passengerRepository.findByEmail(dto.email());
-            if (passengerByEmail.isPresent()) {
-                Passenger p = passengerByEmail.get();
-                if (!p.isDeleted()) {
-                    throw new PassengerConflictException(
-                            "Can't create a user, because the email address '" + dto.email() + "' is already in use"
-                    );
-                } else {
-                    deletedPassengerToRestore = p;
-                }
-            }
+        if (!hasEmail && !hasPhone) {
+            throw new IllegalArgumentException("Either email or phone must be provided");
+        }
+        if (hasEmail && hasPhone) {
+            throw new IllegalArgumentException("Only one of email or phone should be provided");
         }
 
-        if (dto.phoneNumber() != null && !dto.phoneNumber().isBlank()) {
-            Optional<Passenger> passengerByPhone = passengerRepository.findByPhoneNumber(dto.phoneNumber());
-            if (passengerByPhone.isPresent()) {
-                Passenger p = passengerByPhone.get();
-                if (!p.isDeleted()) {
-                    throw new PassengerConflictException(
-                            "Can't create a user, because the phone number '" + dto.phoneNumber() + "' is already in use"
-                    );
-                } else {
-                    if (deletedPassengerToRestore == null) {
-                        deletedPassengerToRestore = p;
-                    } else if (!deletedPassengerToRestore.equals(p)) {
-                        throw new PassengerConflictException(
-                                "Can't restore a user: email and phone number belong to different deleted passengers"
-                        );
-                    }
-                }
-            }
+        Passenger toRestore = hasEmail
+                ? passengerRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("No passenger found by email: " + email))
+                : passengerRepository.findByPhoneNumber(phone)
+                .orElseThrow(() -> new IllegalArgumentException("No passenger found by phone: " + phone));
+
+        if (!toRestore.isDeleted()) {
+            throw new IllegalArgumentException("Passenger is not deleted: " + (hasEmail ? email : phone));
         }
 
-        if (deletedPassengerToRestore != null) {
-            deletedPassengerToRestore.setDeleted(false);
-            deletedPassengerToRestore.setFirstName(dto.firstName());
-            deletedPassengerToRestore.setLastName(dto.lastName());
-            if (dto.email() != null && !dto.email().isBlank()) {
-                deletedPassengerToRestore.setEmail(dto.email());
-            }
-            if (dto.phoneNumber() != null && !dto.phoneNumber().isBlank()) {
-                deletedPassengerToRestore.setPhoneNumber(dto.phoneNumber());
-            }
-            return passengerRepository.save(deletedPassengerToRestore);
-        }
-
-        return null;
+        checkDuplicateEmailOrPhone(toRestore.getEmail(), toRestore.getPhoneNumber(),toRestore.getId());
+        toRestore.setDeleted(false);
+        Passenger restored = passengerRepository.save(toRestore);
+        return passengerMapper.toResponseDto(restored);
     }
 
+    private void checkDuplicateEmailOrPhone(String email, String phone, Long excludeId) {
+        if (email != null && !email.isBlank()) {
+            passengerRepository.findByEmail(email)
+                    .filter(passenger -> !passenger.isDeleted() && (excludeId == null || !passenger.getId().equals(excludeId)))
+                    .ifPresent(existing -> {
+                        throw new IllegalArgumentException("Email is already in use: " + email);
+                    });
+        }
+
+        if (phone != null && !phone.isBlank()) {
+            passengerRepository.findByPhoneNumber(phone)
+                    .filter(passenger -> !passenger.isDeleted() && (excludeId == null || !passenger.getId().equals(excludeId)))
+                    .ifPresent(existing -> {
+                        throw new IllegalArgumentException("Phone number is already in use: " + phone);
+                    });
+        }
+    }
 }

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import transportation.drivers.dto.RestoreDriverRequestDto;
 import transportation.drivers.dto.CreateDriverRequestDto;
 import transportation.drivers.dto.DriverResponseDto;
 import transportation.drivers.dto.UpdateDriverRequestDto;
@@ -29,7 +30,9 @@ public class DriverController {
     }
 
     @PostMapping
-    public ResponseEntity<DriverResponseDto> createDriver(@Valid @RequestBody CreateDriverRequestDto dto) {
+    public ResponseEntity<DriverResponseDto> createDriver(
+            @Valid @RequestBody CreateDriverRequestDto dto)
+    {
         DriverResponseDto created = driverService.createDriver(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
@@ -44,7 +47,9 @@ public class DriverController {
     }
 
     @GetMapping("/{driverId}")
-    public ResponseEntity<DriverResponseDto> getDriverById(@PathVariable("driverId") String driverId) {
+    public ResponseEntity<DriverResponseDto> getDriverById(
+            @PathVariable("driverId") String driverId)
+    {
         DriverResponseDto driver = driverService.getDriverById(driverId);
         return ResponseEntity.ok(driver);
     }
@@ -56,8 +61,18 @@ public class DriverController {
     }
 
     @DeleteMapping("/{driverId}")
-    public ResponseEntity<Void> deleteDriver(@PathVariable("driverId") String driverId) {
+    public ResponseEntity<Void> deleteDriver(
+            @PathVariable("driverId") String driverId)
+    {
         driverService.deleteDriver(driverId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/restore")
+    public ResponseEntity<DriverResponseDto> restoreDriver(
+            @Valid @RequestBody RestoreDriverRequestDto request)
+    {
+        DriverResponseDto restoredDriver = driverService.restoreDriver(request);
+        return ResponseEntity.ok(restoredDriver);
     }
 }

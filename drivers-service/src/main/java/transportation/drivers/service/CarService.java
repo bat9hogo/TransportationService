@@ -1,8 +1,6 @@
 package transportation.drivers.service;
 
-import transportation.drivers.dto.CreateCarRequestDto;
-import transportation.drivers.dto.UpdateCarRequestDto;
-import transportation.drivers.dto.CarResponseDto;
+import transportation.drivers.dto.*;
 
 import java.util.List;
 
@@ -17,4 +15,6 @@ public interface CarService {
     List<CarResponseDto> getAllCars();
 
     void deleteCar(String id);
+
+    CarResponseDto restoreCar(RestoreCarRequestDto dto);
 }

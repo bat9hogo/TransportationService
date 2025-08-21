@@ -5,10 +5,10 @@ import org.springframework.transaction.annotation.Transactional;
 import transportation.drivers.dto.CreateCarRequestDto;
 import transportation.drivers.dto.CreateDriverRequestDto;
 import transportation.drivers.dto.DriverResponseDto;
+import transportation.drivers.dto.RestoreDriverRequestDto;
 import transportation.drivers.dto.UpdateDriverRequestDto;
 import transportation.drivers.entity.Car;
 import transportation.drivers.entity.Driver;
-import transportation.drivers.exception.DriverConflictException;
 import transportation.drivers.exception.NotFoundException;
 import transportation.drivers.mapper.CarMapper;
 import transportation.drivers.mapper.DriverMapper;
@@ -17,7 +17,6 @@ import transportation.drivers.repository.DriverRepository;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Pattern;
 
 @Service
@@ -45,8 +44,9 @@ public class DriverServiceImpl implements DriverService {
     @Override
     @Transactional
     public DriverResponseDto createDriver(CreateDriverRequestDto dto) {
-        Driver restoredDriver = restoreDeletedDriver(dto);
-        Driver driver = restoredDriver != null ? restoredDriver : driverMapper.toEntity(dto);
+        checkDuplicateEmailOrPhone(dto.email(), dto.phoneNumber(), null);
+
+        Driver driver = driverMapper.toEntity(dto);
         driver = driverRepository.save(driver);
 
         handleCars(driver, dto.carIds(), dto.carsToCreate());
@@ -61,10 +61,25 @@ public class DriverServiceImpl implements DriverService {
         Driver driver = driverRepository.findByIdAndDeletedFalse(driverId)
                 .orElseThrow(() -> new NotFoundException("Driver not found with id " + driverId));
 
-        if (dto.firstName() != null) driver.setFirstName(dto.firstName());
-        if (dto.lastName() != null) driver.setLastName(dto.lastName());
-        if (dto.email() != null) driver.setEmail(dto.email());
-        if (dto.phoneNumber() != null) driver.setPhoneNumber(dto.phoneNumber());
+        checkDuplicateEmailOrPhone(dto.email(), dto.phoneNumber(), driverId);
+
+        if (dto.email() != null && !dto.email().isBlank()){
+            checkDuplicateEmailOrPhone(dto.email(), null, driverId);
+            driver.setEmail(dto.email());
+        }
+
+        if (dto.phoneNumber() != null && !dto.phoneNumber().isBlank()){
+            checkDuplicateEmailOrPhone(null, dto.phoneNumber(), driverId);
+            driver.setPhoneNumber(dto.phoneNumber());
+        }
+
+        if (dto.firstName() != null){
+            driver.setFirstName(dto.firstName());
+        }
+
+        if (dto.lastName() != null){
+            driver.setLastName(dto.lastName());
+        }
 
         handleCars(driver, dto.carIds(), dto.carsToCreate());
         driver = driverRepository.save(driver);
@@ -99,40 +114,68 @@ public class DriverServiceImpl implements DriverService {
         carRepository.saveAll(cars);
     }
 
-    private Driver restoreDeletedDriver(CreateDriverRequestDto dto) {
-        Driver deletedDriverToRestore = null;
+    @Override
+    @Transactional
+    public DriverResponseDto restoreDriver(RestoreDriverRequestDto request) {
+        String email = request.email();
+        String phone = request.phoneNumber();
 
-        if (dto.email() != null && !dto.email().isBlank()) {
-            Optional<Driver> byEmail = driverRepository.findByEmail(dto.email());
-            if (byEmail.isPresent()) {
-                Driver driver = byEmail.get();
-                if (!driver.isDeleted()) throw new DriverConflictException("Email already in use " + dto.email());
-                deletedDriverToRestore = driver;
-            }
+        if ((email == null || email.isBlank()) && (phone == null || phone.isBlank())) {
+            throw new IllegalArgumentException("Either email or phone must be provided");
+        }
+        if (email != null && phone != null && !email.isBlank() && !phone.isBlank()) {
+            throw new IllegalArgumentException("Only one of email or phone should be provided");
         }
 
-        if (dto.phoneNumber() != null && !dto.phoneNumber().isBlank()) {
-            Optional<Driver> byPhone = driverRepository.findByPhoneNumber(dto.phoneNumber());
-            if (byPhone.isPresent()) {
-                Driver driver = byPhone.get();
-                if (!driver.isDeleted()) throw new DriverConflictException("Phone number already in use " + dto.phoneNumber());
-                if (deletedDriverToRestore == null) deletedDriverToRestore = driver;
-                else if (!deletedDriverToRestore.equals(driver))
-                    throw new DriverConflictException("Email and phone number belong to different deleted drivers");
-            }
+        Driver driverToRestore;
+
+        if (email != null && !email.isBlank()) {
+            driverToRestore = driverRepository.findByEmail(email)
+                    .orElseThrow(() -> new IllegalArgumentException("No driver found with email: " + email));
+        } else {
+            driverToRestore = driverRepository.findByPhoneNumber(phone)
+                    .orElseThrow(() -> new IllegalArgumentException("No driver found with phone: " + phone));
         }
 
-        if (deletedDriverToRestore != null) {
-            deletedDriverToRestore.setDeleted(false);
-            deletedDriverToRestore.setFirstName(dto.firstName());
-            deletedDriverToRestore.setLastName(dto.lastName());
-            if (dto.email() != null && !dto.email().isBlank()) deletedDriverToRestore.setEmail(dto.email());
-            if (dto.phoneNumber() != null && !dto.phoneNumber().isBlank())
-                deletedDriverToRestore.setPhoneNumber(dto.phoneNumber());
-            return driverRepository.save(deletedDriverToRestore);
+        if (!driverToRestore.isDeleted()) {
+            throw new IllegalArgumentException("Driver is not deleted: " + (email != null ? email : phone));
         }
 
-        return null;
+        checkDuplicateEmailOrPhone(driverToRestore.getEmail(), driverToRestore.getPhoneNumber(), driverToRestore.getId());
+
+        driverToRestore.setDeleted(false);
+        Driver restored = driverRepository.save(driverToRestore);
+
+
+        if (restored.getCarIds() != null && !restored.getCarIds().isEmpty()) {
+            List<Car> cars = carRepository.findAllByIdInAndDeletedFalse(restored.getCarIds());
+            cars.forEach(car -> car.setDriverId(restored.getId()));
+            carRepository.saveAll(cars);
+        }
+
+        return driverMapper.toResponseDto(restored);
+    }
+
+    private void checkDuplicateEmailOrPhone(String email, String phone, String excludeDriverId) {
+        if (email != null && !email.isBlank()) {
+            driverRepository.findAllByEmail(email)
+                    .stream()
+                    .filter(d -> !d.isDeleted() && (excludeDriverId == null || !d.getId().equals(excludeDriverId)))
+                    .findFirst()
+                    .ifPresent(d -> {
+                        throw new IllegalArgumentException("Email is already in use: " + email);
+                    });
+        }
+
+        if (phone != null && !phone.isBlank()) {
+            driverRepository.findAllByPhoneNumber(phone)
+                    .stream()
+                    .filter(d -> !d.isDeleted() && (excludeDriverId == null || !d.getId().equals(excludeDriverId)))
+                    .findFirst()
+                    .ifPresent(d -> {
+                        throw new IllegalArgumentException("Phone number is already in use: " + phone);
+                    });
+        }
     }
 
     private void handleCars(Driver driver, List<String> carIds, List<CreateCarRequestDto> carsToCreate) {
@@ -158,7 +201,7 @@ public class DriverServiceImpl implements DriverService {
         if (carsToCreate != null && !carsToCreate.isEmpty()) {
             for (CreateCarRequestDto carDto : carsToCreate) {
                 if (carDto.licensePlate() == null || !LICENSE_PLATE_PATTERN.matcher(carDto.licensePlate()).matches()) {
-                    throw new DriverConflictException("Invalid license plate format: " + carDto.licensePlate());
+                    throw new IllegalArgumentException("Invalid license plate format: " + carDto.licensePlate());
                 }
 
                 Car car = createOrRestoreCar(carDto, driver.getId());
@@ -170,7 +213,8 @@ public class DriverServiceImpl implements DriverService {
     }
 
     private Car createOrRestoreCar(CreateCarRequestDto dto, String driverId) {
-        Car car = carRepository.findByLicensePlateAndDeletedFalse(dto.licensePlate()).orElseGet(() -> carMapper.toEntity(dto));
+        Car car = carRepository.findByLicensePlateAndDeletedFalse(dto.licensePlate())
+                .orElseGet(() -> carMapper.toEntity(dto));
 
         if (car.isDeleted()) car.setDeleted(false);
 

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import transportation.drivers.dto.RestoreCarRequestDto;
 import transportation.drivers.dto.CreateCarRequestDto;
 import transportation.drivers.dto.UpdateCarRequestDto;
 import transportation.drivers.dto.CarResponseDto;
@@ -29,7 +30,9 @@ public class CarController {
     }
 
     @PostMapping
-    public ResponseEntity<CarResponseDto> createCar(@Valid @RequestBody CreateCarRequestDto dto) {
+    public ResponseEntity<CarResponseDto> createCar(
+            @Valid @RequestBody CreateCarRequestDto dto)
+    {
         CarResponseDto created = carService.createCar(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
@@ -44,7 +47,9 @@ public class CarController {
     }
 
     @GetMapping("/{carId}")
-    public ResponseEntity<CarResponseDto> getCarById(@PathVariable("carId") String carId) {
+    public ResponseEntity<CarResponseDto> getCarById(
+            @PathVariable("carId") String carId)
+    {
         CarResponseDto car = carService.getCarById(carId);
         return ResponseEntity.ok(car);
     }
@@ -56,8 +61,18 @@ public class CarController {
     }
 
     @DeleteMapping("/{carId}")
-    public ResponseEntity<Void> deleteCar(@PathVariable("carId") String carId) {
+    public ResponseEntity<Void> deleteCar(
+            @PathVariable("carId") String carId)
+    {
         carService.deleteCar(carId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/restore")
+    public ResponseEntity<CarResponseDto> restoreCar(
+            @Valid @RequestBody RestoreCarRequestDto request)
+    {
+        CarResponseDto restored = carService.restoreCar(request);
+        return ResponseEntity.ok(restored);
     }
 }

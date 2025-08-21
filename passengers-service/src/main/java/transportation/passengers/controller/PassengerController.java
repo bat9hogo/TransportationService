@@ -2,6 +2,7 @@ package transportation.passengers.controller;
 
 import transportation.passengers.dto.CreatePassengerRequestDto;
 import transportation.passengers.dto.UpdatePassengerRequestDto;
+import transportation.passengers.dto.RestorePassengerRequestDto;
 import transportation.passengers.dto.PassengerResponseDto;
 import transportation.passengers.service.PassengerService;
 import jakarta.validation.Valid;
@@ -36,7 +37,9 @@ public class PassengerController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PassengerResponseDto> getPassengerById(@PathVariable("id") Long id) {
+    public ResponseEntity<PassengerResponseDto> getPassengerById(
+            @PathVariable("id") Long id)
+    {
         PassengerResponseDto dto = service.getPassengerById(id);
         return ResponseEntity.ok(dto);
     }
@@ -57,8 +60,18 @@ public class PassengerController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePassenger(@PathVariable("id") Long id) {
+    public ResponseEntity<Void> deletePassenger(
+            @PathVariable("id") Long id)
+    {
         service.deletePassenger(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/restore")
+    public ResponseEntity<PassengerResponseDto> restorePassenger(
+            @Valid @RequestBody RestorePassengerRequestDto dto)
+    {
+        return ResponseEntity.ok(service.restorePassenger(dto));
+    }
+
 }

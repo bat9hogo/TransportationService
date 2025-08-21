@@ -1,15 +1,9 @@
 package transportation.drivers.entity;
 
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
 
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 @Document(collection = "cars")
 public class Car extends BaseEntity {
 
@@ -19,6 +13,14 @@ public class Car extends BaseEntity {
     private String licensePlate;
 
     private String driverId;
+
+    public Car() {}
+
+    public Car(String color, String brand, String licensePlate) {
+        this.color = color;
+        this.brand = brand;
+        this.licensePlate = licensePlate;
+    }
 
     public String getColor() {
         return color;
