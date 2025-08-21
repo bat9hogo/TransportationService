@@ -1,13 +1,20 @@
 package transportation.drivers.service;
 
-import transportation.drivers.dto.CarDto;
+import transportation.drivers.dto.CarRequestDto;
+import transportation.drivers.dto.CarUpdateDto;
+import transportation.drivers.dto.CarResponseDto;
+
 import java.util.List;
 
 public interface CarService {
 
-    CarDto createCar(CarDto dto);
-    CarDto updateCar(String carId, CarDto dto);
-    CarDto getCarById(String carId);
-    List<CarDto> getAllCars();
-    void deleteCar(String carId);
+    CarResponseDto createCar(CarRequestDto dto);
+
+    CarResponseDto updateCar(String id, CarUpdateDto dto);
+
+    CarResponseDto getCarById(String id);
+
+    List<CarResponseDto> getAllCars();
+
+    void deleteCar(String id);
 }

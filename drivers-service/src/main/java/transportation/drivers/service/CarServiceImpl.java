@@ -1,66 +1,128 @@
 package transportation.drivers.service;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import transportation.drivers.dto.CarDto;
+import org.springframework.transaction.annotation.Transactional;
+import transportation.drivers.dto.CarRequestDto;
+import transportation.drivers.dto.CarUpdateDto;
+import transportation.drivers.dto.CarResponseDto;
 import transportation.drivers.entity.Car;
+import transportation.drivers.entity.Driver;
+import transportation.drivers.exception.DriverConflictException;
 import transportation.drivers.exception.NotFoundException;
 import transportation.drivers.mapper.CarMapper;
 import transportation.drivers.repository.CarRepository;
+import transportation.drivers.repository.DriverRepository;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Service
-@RequiredArgsConstructor
 public class CarServiceImpl implements CarService {
 
-    private CarRepository carRepository;
-    private CarMapper carMapper;
+    private final CarRepository carRepository;
+    private final DriverRepository driverRepository;
+    private final CarMapper carMapper;
 
-    public CarServiceImpl(CarRepository carRepository, CarMapper carMapper) {
+    private static final Pattern LICENSE_PLATE_PATTERN = Pattern.compile("^[0-9]{4}\\s?[A-Z]{2}-[1-7]$");
+
+    public CarServiceImpl(CarRepository carRepository, DriverRepository driverRepository, CarMapper carMapper) {
         this.carRepository = carRepository;
+        this.driverRepository = driverRepository;
         this.carMapper = carMapper;
     }
 
     @Override
-    public CarDto createCar(CarDto dto) {
-        Car car = carMapper.toEntity(dto);
+    @Transactional
+    public CarResponseDto createCar(CarRequestDto dto) {
+        validateLicensePlate(dto.licensePlate());
+
+        Car car = carRepository.findByLicensePlateAndDeletedFalse(dto.licensePlate()).orElseGet(() -> carMapper.toEntity(dto));
+
+        if (car.isDeleted()) car.setDeleted(false);
+        car.setBrand(dto.brand());
+        car.setColor(dto.color());
+
+        if (dto.driverId() != null) {
+            Driver driver = driverRepository.findByIdAndDeletedFalse(dto.driverId())
+                    .orElseThrow(() -> new NotFoundException("Driver not found with id " + dto.driverId()));
+            car.setDriverId(driver.getId());
+        }
+
         Car savedCar = carRepository.save(car);
+
+        if (savedCar.getDriverId() != null) updateDriverCarIds(savedCar);
+
         return carMapper.toDto(savedCar);
     }
 
     @Override
-    public CarDto updateCar(String id, CarDto dto) {
-        Car existing = carRepository.findByIdAndDeletedFalse(id)
-                .orElseThrow(() -> new NotFoundException("Car not found"));
+    @Transactional
+    public CarResponseDto updateCar(String carId, CarUpdateDto dto) {
+        Car car = carRepository.findByIdAndDeletedFalse(carId)
+                .orElseThrow(() -> new NotFoundException("Car not found with id " + carId));
 
-        existing.setColor(dto.color());
-        existing.setBrand(dto.brand());
-        existing.setLicensePlate(dto.licensePlate());
+        validateLicensePlate(dto.licensePlate());
+        carMapper.updateEntityFromDto(dto, car);
 
-        return carMapper.toDto(carRepository.save(existing));
+        if (dto.driverId() != null) {
+            Driver driver = driverRepository.findByIdAndDeletedFalse(dto.driverId())
+                    .orElseThrow(() -> new NotFoundException("Driver not found with id " + dto.driverId()));
+            car.setDriverId(driver.getId());
+        }
+
+        Car savedCar = carRepository.save(car);
+        updateDriverCarIds(savedCar);
+
+        return carMapper.toDto(savedCar);
     }
 
     @Override
-    public CarDto getCarById(String id) {
-        return carRepository.findByIdAndDeletedFalse(id)
-                .map(carMapper::toDto)
-                .orElseThrow(() -> new NotFoundException("Car not found"));
+    @Transactional(readOnly = true)
+    public CarResponseDto getCarById(String carId) {
+        Car car = carRepository.findByIdAndDeletedFalse(carId)
+                .orElseThrow(() -> new NotFoundException("Car not found with id " + carId));
+        return carMapper.toDto(car);
     }
 
     @Override
-    public List<CarDto> getAllCars() {
-        return carRepository.findAllByDeletedFalse()
-                .stream()
-                .map(carMapper::toDto)
-                .toList();
+    @Transactional(readOnly = true)
+    public List<CarResponseDto> getAllCars() {
+        return carMapper.toDtoList(carRepository.findAllByDeletedFalse());
     }
 
     @Override
-    public void deleteCar(String id) {
-        Car existing = carRepository.findByIdAndDeletedFalse(id)
-                .orElseThrow(() -> new NotFoundException("Car not found"));
-        existing.setDeleted(true);
-        carRepository.save(existing);
+    @Transactional
+    public void deleteCar(String carId) {
+        Car car = carRepository.findByIdAndDeletedFalse(carId)
+                .orElseThrow(() -> new NotFoundException("Car not found with id " + carId));
+        car.setDeleted(true);
+        carRepository.save(car);
+
+        if (car.getDriverId() != null) {
+            Driver driver = driverRepository.findByIdAndDeletedFalse(car.getDriverId()).orElse(null);
+            if (driver != null && driver.getCarIds() != null) {
+                driver.getCarIds().remove(car.getId());
+                driverRepository.save(driver);
+            }
+        }
+    }
+
+    private void validateLicensePlate(String licensePlate) {
+        if (licensePlate == null || !LICENSE_PLATE_PATTERN.matcher(licensePlate).matches()) {
+            throw new DriverConflictException("Invalid license plate format: " + licensePlate);
+        }
+    }
+
+    private void updateDriverCarIds(Car car) {
+        if (car.getDriverId() == null) return;
+
+        Driver driver = driverRepository.findByIdAndDeletedFalse(car.getDriverId()).orElse(null);
+        if (driver == null) return;
+
+        List<String> driverCarIds = driver.getCarIds() != null ? driver.getCarIds() : new ArrayList<>();
+        if (!driverCarIds.contains(car.getId())) driverCarIds.add(car.getId());
+        driver.setCarIds(driverCarIds);
+        driverRepository.save(driver);
     }
 }

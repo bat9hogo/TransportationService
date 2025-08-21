@@ -1,95 +1,197 @@
 package transportation.drivers.service;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import transportation.drivers.dto.DriverDto;
+import org.springframework.transaction.annotation.Transactional;
+import transportation.drivers.dto.CarRequestDto;
+import transportation.drivers.dto.DriverRequestDto;
+import transportation.drivers.dto.DriverResponseDto;
+import transportation.drivers.dto.DriverUpdateDto;
 import transportation.drivers.entity.Car;
 import transportation.drivers.entity.Driver;
+import transportation.drivers.exception.DriverConflictException;
 import transportation.drivers.exception.NotFoundException;
+import transportation.drivers.mapper.CarMapper;
 import transportation.drivers.mapper.DriverMapper;
 import transportation.drivers.repository.CarRepository;
 import transportation.drivers.repository.DriverRepository;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.regex.Pattern;
 
 @Service
-@RequiredArgsConstructor
 public class DriverServiceImpl implements DriverService {
 
-    private DriverRepository driverRepository;
-    private CarRepository carRepository;
-    private DriverMapper driverMapper;
+    private final DriverRepository driverRepository;
+    private final CarRepository carRepository;
+    private final DriverMapper driverMapper;
+    private final CarMapper carMapper;
 
-    public DriverServiceImpl
-            (DriverRepository driverRepository, CarRepository carRepository,
-             DriverMapper driverMapper
-            ) {
+    private static final Pattern LICENSE_PLATE_PATTERN = Pattern.compile("^[0-9]{4}\\s?[A-Z]{2}-[1-7]$");
+
+    public DriverServiceImpl(
+            DriverRepository driverRepository,
+            CarRepository carRepository,
+            DriverMapper driverMapper,
+            CarMapper carMapper
+    ) {
         this.driverRepository = driverRepository;
         this.carRepository = carRepository;
         this.driverMapper = driverMapper;
+        this.carMapper = carMapper;
     }
 
     @Override
-    public DriverDto createDriver(DriverDto dto) {
-        Driver driver = driverMapper.toEntity(dto);
-        Driver savedDriver = driverRepository.save(driver);
+    @Transactional
+    public DriverResponseDto createDriver(DriverRequestDto dto) {
+        Driver restoredDriver = restoreDeletedDriver(dto);
+        Driver driver = restoredDriver != null ? restoredDriver : driverMapper.toEntity(dto);
+        driver = driverRepository.save(driver);
 
-        if (dto.carIds() != null && !dto.carIds().isEmpty()) {
-            List<Car> cars = carRepository.findAllByIdIn(dto.carIds());
-            cars.forEach(car -> car.setDriverId(savedDriver.getId()));
-            carRepository.saveAll(cars);
+        handleCars(driver, dto.carIds(), dto.carsToCreate());
+        driver = driverRepository.save(driver);
 
-            savedDriver.setCarIds(cars.stream().map(Car::getId).toList());
-            driverRepository.save(savedDriver);
-        }
-
-        return driverMapper.toDto(savedDriver);
+        return driverMapper.toResponseDto(driver);
     }
 
     @Override
-    public DriverDto updateDriver(String id, DriverDto dto) {
-        Driver existing = driverRepository.findByIdAndDeletedFalse(id)
-                .orElseThrow(() -> new NotFoundException("Driver not found"));
+    @Transactional
+    public DriverResponseDto updateDriver(String driverId, DriverUpdateDto dto) {
+        Driver driver = driverRepository.findByIdAndDeletedFalse(driverId)
+                .orElseThrow(() -> new NotFoundException("Driver not found with id " + driverId));
 
-        existing.setFirstName(dto.firstName());
-        existing.setLastName(dto.lastName());
-        existing.setEmail(dto.email());
-        existing.setPhoneNumber(dto.phoneNumber());
+        if (dto.firstName() != null) driver.setFirstName(dto.firstName());
+        if (dto.lastName() != null) driver.setLastName(dto.lastName());
+        if (dto.email() != null) driver.setEmail(dto.email());
+        if (dto.phoneNumber() != null) driver.setPhoneNumber(dto.phoneNumber());
 
-        if (dto.carIds() != null) {
-            if (existing.getCarIds() != null) {
-                List<Car> oldCars = carRepository.findAllByIdIn(existing.getCarIds());
-                oldCars.forEach(car -> car.setDriverId(null));
-                carRepository.saveAll(oldCars);
+        handleCars(driver, dto.carIds(), dto.carsToCreate());
+        driver = driverRepository.save(driver);
+
+        return driverMapper.toResponseDto(driver);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public DriverResponseDto getDriverById(String driverId) {
+        return driverRepository.findByIdAndDeletedFalse(driverId)
+                .map(driverMapper::toResponseDto)
+                .orElseThrow(() -> new NotFoundException("Driver not found with id " + driverId));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<DriverResponseDto> getAllDrivers() {
+        return driverMapper.toResponseDtoList(driverRepository.findAllByDeletedFalse());
+    }
+
+    @Override
+    @Transactional
+    public void deleteDriver(String driverId) {
+        Driver driver = driverRepository.findByIdAndDeletedFalse(driverId)
+                .orElseThrow(() -> new NotFoundException("Driver not found with id " + driverId));
+        driver.setDeleted(true);
+        driverRepository.save(driver);
+
+        List<Car> cars = carRepository.findAllByIdInAndDeletedFalse(driver.getCarIds());
+        cars.forEach(car -> car.setDriverId(null));
+        carRepository.saveAll(cars);
+    }
+
+    private Driver restoreDeletedDriver(DriverRequestDto dto) {
+        Driver deletedDriverToRestore = null;
+
+        if (dto.email() != null && !dto.email().isBlank()) {
+            Optional<Driver> byEmail = driverRepository.findByEmail(dto.email());
+            if (byEmail.isPresent()) {
+                Driver driver = byEmail.get();
+                if (!driver.isDeleted()) throw new DriverConflictException("Email already in use " + dto.email());
+                deletedDriverToRestore = driver;
             }
-
-            List<Car> newCars = carRepository.findAllByIdIn(dto.carIds());
-            newCars.forEach(car -> car.setDriverId(existing.getId()));
-            carRepository.saveAll(newCars);
-
-            existing.setCarIds(newCars.stream().map(Car::getId).toList());
         }
 
-        return driverMapper.toDto(driverRepository.save(existing));
+        if (dto.phoneNumber() != null && !dto.phoneNumber().isBlank()) {
+            Optional<Driver> byPhone = driverRepository.findByPhoneNumber(dto.phoneNumber());
+            if (byPhone.isPresent()) {
+                Driver driver = byPhone.get();
+                if (!driver.isDeleted()) throw new DriverConflictException("Phone number already in use " + dto.phoneNumber());
+                if (deletedDriverToRestore == null) deletedDriverToRestore = driver;
+                else if (!deletedDriverToRestore.equals(driver))
+                    throw new DriverConflictException("Email and phone number belong to different deleted drivers");
+            }
+        }
+
+        if (deletedDriverToRestore != null) {
+            deletedDriverToRestore.setDeleted(false);
+            deletedDriverToRestore.setFirstName(dto.firstName());
+            deletedDriverToRestore.setLastName(dto.lastName());
+            if (dto.email() != null && !dto.email().isBlank()) deletedDriverToRestore.setEmail(dto.email());
+            if (dto.phoneNumber() != null && !dto.phoneNumber().isBlank())
+                deletedDriverToRestore.setPhoneNumber(dto.phoneNumber());
+            return driverRepository.save(deletedDriverToRestore);
+        }
+
+        return null;
     }
 
-    @Override
-    public DriverDto getDriverById(String id) {
-        return driverRepository.findByIdAndDeletedFalse(id)
-                .map(driverMapper::toDto)
-                .orElseThrow(() -> new NotFoundException("Driver not found"));
+    private void handleCars(Driver driver, List<String> carIds, List<CarRequestDto> carsToCreate) {
+        List<String> finalCarIds = new ArrayList<>();
+
+        if (driver.getCarIds() != null && !driver.getCarIds().isEmpty()) {
+            List<Car> oldCars = carRepository.findAllByIdInAndDeletedFalse(driver.getCarIds());
+            oldCars.forEach(car -> car.setDriverId(null));
+            carRepository.saveAll(oldCars);
+        }
+
+        if (carIds != null && !carIds.isEmpty()) {
+            List<Car> existingCars = carRepository.findAllByIdInAndDeletedFalse(carIds);
+            if (existingCars.size() != carIds.size())
+                throw new NotFoundException("One or more carIds do not exist or are deleted");
+            existingCars.forEach(car -> {
+                car.setDriverId(driver.getId());
+                finalCarIds.add(car.getId());
+            });
+            carRepository.saveAll(existingCars);
+        }
+
+        if (carsToCreate != null && !carsToCreate.isEmpty()) {
+            for (CarRequestDto carDto : carsToCreate) {
+                if (carDto.licensePlate() == null || !LICENSE_PLATE_PATTERN.matcher(carDto.licensePlate()).matches()) {
+                    throw new DriverConflictException("Invalid license plate format: " + carDto.licensePlate());
+                }
+
+                Car car = createOrRestoreCar(carDto, driver.getId());
+                finalCarIds.add(car.getId());
+            }
+        }
+
+        driver.setCarIds(finalCarIds);
     }
 
-    @Override
-    public List<DriverDto> getAllDrivers() {
-        return driverMapper.toDtoList(driverRepository.findAllByDeletedFalse());
-    }
+    private Car createOrRestoreCar(CarRequestDto dto, String driverId) {
+        Car car = carRepository.findByLicensePlateAndDeletedFalse(dto.licensePlate()).orElseGet(() -> carMapper.toEntity(dto));
 
-    @Override
-    public void deleteDriver(String id) {
-        Driver existing = driverRepository.findByIdAndDeletedFalse(id)
-                .orElseThrow(() -> new NotFoundException("Driver not found"));
-        existing.setDeleted(true);
-        driverRepository.save(existing);
+        if (car.isDeleted()) car.setDeleted(false);
+
+        car.setBrand(dto.brand());
+        car.setColor(dto.color());
+        car.setDriverId(driverId);
+
+        Car savedCar = carRepository.save(car);
+
+        if (savedCar.getDriverId() != null) {
+            Driver driver = driverRepository.findByIdAndDeletedFalse(savedCar.getDriverId()).orElse(null);
+            if (driver != null) {
+                List<String> driverCarIds = driver.getCarIds() != null ? driver.getCarIds() : new ArrayList<>();
+                if (!driverCarIds.contains(savedCar.getId())) {
+                    driverCarIds.add(savedCar.getId());
+                    driver.setCarIds(driverCarIds);
+                    driverRepository.save(driver);
+                }
+            }
+        }
+
+        return savedCar;
     }
 }

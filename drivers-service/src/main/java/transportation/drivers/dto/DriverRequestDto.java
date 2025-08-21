@@ -1,16 +1,13 @@
 package transportation.drivers.dto;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
 
 import java.util.List;
 
-public record DriverDto(
-        String id,
-
+public record DriverRequestDto(
         @NotBlank(message = "First name is required")
         @Size(max = 100, message = "First name must be less than 100 characters")
         String firstName,
@@ -26,6 +23,7 @@ public record DriverDto(
         @Pattern(regexp = "^\\+\\d{7,15}$", message = "Phone number must be in international format")
         String phoneNumber,
 
-        @Schema(hidden = true)
-        List<String> carIds
+        List<String> carIds,
+
+        List<CarRequestDto> carsToCreate
 ) {}

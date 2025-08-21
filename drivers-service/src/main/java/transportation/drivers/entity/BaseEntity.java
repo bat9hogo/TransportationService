@@ -1,10 +1,8 @@
 package transportation.drivers.entity;
 
-import lombok.Data;
 import org.springframework.data.annotation.Id;
 import java.util.Date;
 
-@Data
 public abstract class BaseEntity {
 
     @Id
@@ -18,7 +16,6 @@ public abstract class BaseEntity {
     public String getId() {
         return id;
     }
-
     public void setId(String id) {
         this.id = id;
     }
@@ -26,7 +23,6 @@ public abstract class BaseEntity {
     public boolean isDeleted() {
         return deleted;
     }
-
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
     }
@@ -34,7 +30,6 @@ public abstract class BaseEntity {
     public Date getCreatedAt() {
         return createdAt;
     }
-
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
@@ -42,7 +37,6 @@ public abstract class BaseEntity {
     public Date getUpdatedAt() {
         return updatedAt;
     }
-
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
     }

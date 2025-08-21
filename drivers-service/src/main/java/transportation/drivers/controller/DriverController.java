@@ -1,9 +1,19 @@
 package transportation.drivers.controller;
 
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import transportation.drivers.dto.DriverDto;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import transportation.drivers.dto.DriverResponseDto;
+import transportation.drivers.dto.DriverRequestDto;
+import transportation.drivers.dto.DriverUpdateDto;
 import transportation.drivers.service.DriverService;
 
 import java.util.List;
@@ -19,27 +29,29 @@ public class DriverController {
     }
 
     @PostMapping
-    public ResponseEntity<DriverDto> createDriver(@Valid @RequestBody DriverDto dto) {
-        DriverDto created = driverService.createDriver(dto);
-        return ResponseEntity.ok(created);
+    public ResponseEntity<DriverResponseDto> createDriver(@Valid @RequestBody DriverRequestDto dto) {
+        DriverResponseDto created = driverService.createDriver(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{driverId}")
-    public ResponseEntity<DriverDto> updateDriver(@PathVariable("driverId") String driverId,
-                                                  @Valid @RequestBody DriverDto dto) {
-        DriverDto updated = driverService.updateDriver(driverId, dto);
+    public ResponseEntity<DriverResponseDto> updateDriver(
+            @PathVariable("driverId") String driverId,
+            @Valid @RequestBody DriverUpdateDto dto
+    ) {
+        DriverResponseDto updated = driverService.updateDriver(driverId, dto);
         return ResponseEntity.ok(updated);
     }
 
     @GetMapping("/{driverId}")
-    public ResponseEntity<DriverDto> getDriverById(@PathVariable("driverId") String driverId) {
-        DriverDto driver = driverService.getDriverById(driverId);
+    public ResponseEntity<DriverResponseDto> getDriverById(@PathVariable("driverId") String driverId) {
+        DriverResponseDto driver = driverService.getDriverById(driverId);
         return ResponseEntity.ok(driver);
     }
 
     @GetMapping
-    public ResponseEntity<List<DriverDto>> getAllDrivers() {
-        List<DriverDto> drivers = driverService.getAllDrivers();
+    public ResponseEntity<List<DriverResponseDto>> getAllDrivers() {
+        List<DriverResponseDto> drivers = driverService.getAllDrivers();
         return ResponseEntity.ok(drivers);
     }
 

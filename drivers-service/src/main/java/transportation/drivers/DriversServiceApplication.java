@@ -9,9 +9,7 @@ public class DriversServiceApplication {
 
     public static void main(String[] args) {
 
-        Dotenv dotenv = Dotenv.configure()
-                .directory("D:/Java/TransportationService/drivers-service")
-                .load();
+        Dotenv dotenv = Dotenv.configure().directory("drivers-service").load();
 
         System.setProperty("spring.data.mongodb.host", dotenv.get("MONGO_HOST"));
         System.setProperty("spring.data.mongodb.port", dotenv.get("MONGO_PORT"));
