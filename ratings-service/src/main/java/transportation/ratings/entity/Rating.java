@@ -35,6 +35,7 @@ public class Rating extends BaseEntity{
             String id, String tripId, String driverId, String passengerId,
             Integer score, String comment, AuthorType authorType
     ) {
+        this.id = id;
         this.tripId = tripId;
         this.driverId = driverId;
         this.passengerId = passengerId;
