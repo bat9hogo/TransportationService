@@ -8,8 +8,6 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 import java.util.Date;
 
 public abstract class BaseEntity {
-    @Id
-    private String id;
     private boolean deleted = false;
 
     @Field(type = FieldType.Date)
@@ -17,13 +15,6 @@ public abstract class BaseEntity {
 
     @Field(type = FieldType.Date)
     private Date updatedAt;
-
-    public String getId() {
-        return id;
-    }
-    public void setId(String id) {
-        this.id = id;
-    }
 
     public boolean isDeleted() {
         return deleted;
