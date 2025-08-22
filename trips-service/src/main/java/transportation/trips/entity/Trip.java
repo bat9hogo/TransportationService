@@ -38,9 +38,9 @@ public class Trip extends BaseEntity {
     public Trip() {}
 
     public Trip(
-            String id, String driverId, String passengerId, String fromAddress, String toAddress,
-            String status, Instant orderTime, BigDecimal price
-    ){
+            String id, String driverId, String passengerId, String fromAddress,
+            String toAddress, String status, Instant orderTime, BigDecimal price
+    ) {
         this.id = id;
         this.driverId = driverId;
         this.passengerId = passengerId;

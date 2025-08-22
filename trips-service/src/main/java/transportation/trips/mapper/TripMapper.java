@@ -3,7 +3,7 @@ package transportation.trips.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
-import transportation.trips.dto.TripRequestDto;
+import transportation.trips.dto.CreateTripRequestDto;
 import transportation.trips.dto.TripResponseDto;
 import transportation.trips.entity.Trip;
 import transportation.trips.entity.TripStatus;
@@ -14,7 +14,7 @@ public interface TripMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "orderTime", ignore = true)
-    Trip toEntity(TripRequestDto dto);
+    Trip toEntity(CreateTripRequestDto dto);
 
     @Mapping(source = "status", target = "status", qualifiedByName = "stringToTripStatus")
     TripResponseDto toDto(Trip trip);
@@ -24,7 +24,7 @@ public interface TripMapper {
         return status != null ? TripStatus.valueOf(status) : null;
     }
 
-    default void updateEntityFromDto(TripRequestDto dto, Trip entity) {
+    default void updateEntityFromDto(CreateTripRequestDto dto, Trip entity) {
         if (dto.driverId() != null)
             entity.setDriverId(dto.driverId());
 

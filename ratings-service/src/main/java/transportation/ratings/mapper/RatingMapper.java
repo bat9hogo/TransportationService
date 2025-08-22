@@ -3,7 +3,7 @@ package transportation.ratings.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
-import transportation.ratings.dto.RatingRequestDto;
+import transportation.ratings.dto.CreateRatingRequestDto;
 import transportation.ratings.dto.RatingResponseDto;
 import transportation.ratings.entity.Rating;
 
@@ -17,7 +17,7 @@ public interface RatingMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "authorType", source = "authorType")
-    Rating toEntity(RatingRequestDto dto);
+    Rating toEntity(CreateRatingRequestDto dto);
 
     @Mapping(target = "authorType", source = "authorType")
     RatingResponseDto toDto(Rating rating);

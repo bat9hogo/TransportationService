@@ -1,5 +1,5 @@
 # RatingsService
-A Elasticsearch-based ratings service.
+Elasticsearch-based ratings service.
 
 1. Ensure `.env` is set with database credentials.
 2. Start the database:

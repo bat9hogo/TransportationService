@@ -10,8 +10,4 @@ import java.util.List;
 public interface RatingRepository extends ElasticsearchRepository<Rating, String> {
 
     List<Rating> findByTripIdAndDeletedFalse(String tripId);
-
-    List<Rating> findByDriverIdAndDeletedFalse(String driverId);
-
-    List<Rating> findByPassengerIdAndDeletedFalse(String passengerId);
 }

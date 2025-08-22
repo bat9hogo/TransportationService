@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
 
-public record TripRequestDto(
+public record CreateTripRequestDto(
         @NotBlank
         String driverId,
 

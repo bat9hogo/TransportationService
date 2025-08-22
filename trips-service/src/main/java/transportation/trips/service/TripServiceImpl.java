@@ -3,7 +3,7 @@ package transportation.trips.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import transportation.trips.dto.RestoreTripRequestDto;
-import transportation.trips.dto.TripRequestDto;
+import transportation.trips.dto.CreateTripRequestDto;
 import transportation.trips.dto.TripResponseDto;
 import transportation.trips.dto.TripStatusUpdateDto;
 import transportation.trips.entity.Trip;
@@ -30,7 +30,7 @@ public class TripServiceImpl implements TripService {
     }
 
     @Override
-    public TripResponseDto createTrip(TripRequestDto request) {
+    public TripResponseDto createTrip(CreateTripRequestDto request) {
         Trip trip = tripMapper.toEntity(request);
         trip.setId(UUID.randomUUID().toString());
         trip.setStatus(TripStatus.CREATED.name());
@@ -54,7 +54,7 @@ public class TripServiceImpl implements TripService {
     }
 
     @Override
-    public TripResponseDto updateTrip(String id, TripRequestDto request) {
+    public TripResponseDto updateTrip(String id, CreateTripRequestDto request) {
         Trip trip = findTripByIdOrThrow(id);
 
         tripMapper.updateEntityFromDto(request, trip);

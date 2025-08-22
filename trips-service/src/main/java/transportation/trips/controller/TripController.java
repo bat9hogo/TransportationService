@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import transportation.trips.dto.TripRequestDto;
+import transportation.trips.dto.CreateTripRequestDto;
 import transportation.trips.dto.TripResponseDto;
 import transportation.trips.dto.TripStatusUpdateDto;
 import transportation.trips.dto.RestoreTripRequestDto;
@@ -32,7 +32,7 @@ public class TripController {
 
     @PostMapping
     public ResponseEntity<TripResponseDto> createTrip(
-            @Valid @RequestBody TripRequestDto request
+            @Valid @RequestBody CreateTripRequestDto request
     ) {
         TripResponseDto created = tripService.createTrip(request);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
@@ -55,7 +55,7 @@ public class TripController {
     @PutMapping("/{id}")
     public ResponseEntity<TripResponseDto> updateTrip(
             @PathVariable("id") String id,
-            @Valid @RequestBody TripRequestDto request
+            @Valid @RequestBody CreateTripRequestDto request
     ) {
         TripResponseDto updated = tripService.updateTrip(id, request);
         return ResponseEntity.ok(updated);
