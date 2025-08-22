@@ -45,6 +45,5 @@ public class CassandraMigrationRunner implements CommandLineRunner {
                 }
             }
         }
-
     }
 }

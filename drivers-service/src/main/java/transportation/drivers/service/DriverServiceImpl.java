@@ -63,21 +63,21 @@ public class DriverServiceImpl implements DriverService {
 
         checkDuplicateEmailOrPhone(dto.email(), dto.phoneNumber(), driverId);
 
-        if (dto.email() != null && !dto.email().isBlank()){
+        if (dto.email() != null && !dto.email().isBlank()) {
             checkDuplicateEmailOrPhone(dto.email(), null, driverId);
             driver.setEmail(dto.email());
         }
 
-        if (dto.phoneNumber() != null && !dto.phoneNumber().isBlank()){
+        if (dto.phoneNumber() != null && !dto.phoneNumber().isBlank()) {
             checkDuplicateEmailOrPhone(null, dto.phoneNumber(), driverId);
             driver.setPhoneNumber(dto.phoneNumber());
         }
 
-        if (dto.firstName() != null){
+        if (dto.firstName() != null) {
             driver.setFirstName(dto.firstName());
         }
 
-        if (dto.lastName() != null){
+        if (dto.lastName() != null) {
             driver.setLastName(dto.lastName());
         }
 

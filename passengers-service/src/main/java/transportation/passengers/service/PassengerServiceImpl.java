@@ -61,19 +61,19 @@ public class PassengerServiceImpl implements PassengerService {
 
         checkDuplicateEmailOrPhone(dto.email(), dto.phoneNumber(), id);
 
-        if (dto.email() != null && !dto.email().isBlank()){
+        if (dto.email() != null && !dto.email().isBlank()) {
             passenger.setEmail(dto.email());
         }
 
-        if (dto.phoneNumber() != null && !dto.phoneNumber().isBlank()){
+        if (dto.phoneNumber() != null && !dto.phoneNumber().isBlank()) {
             passenger.setPhoneNumber(dto.phoneNumber());
         }
 
-        if (dto.firstName() != null){
+        if (dto.firstName() != null) {
             passenger.setFirstName(dto.firstName());
         }
 
-        if (dto.lastName() != null){
+        if (dto.lastName() != null) {
             passenger.setLastName(dto.lastName());
         }
 

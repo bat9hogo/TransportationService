@@ -38,8 +38,8 @@ public class PassengerController {
 
     @GetMapping("/{id}")
     public ResponseEntity<PassengerResponseDto> getPassengerById(
-            @PathVariable("id") Long id)
-    {
+            @PathVariable("id") Long id
+    ) {
         PassengerResponseDto dto = service.getPassengerById(id);
         return ResponseEntity.ok(dto);
     }
@@ -61,16 +61,16 @@ public class PassengerController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePassenger(
-            @PathVariable("id") Long id)
-    {
+            @PathVariable("id") Long id
+    ) {
         service.deletePassenger(id);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/restore")
     public ResponseEntity<PassengerResponseDto> restorePassenger(
-            @Valid @RequestBody RestorePassengerRequestDto dto)
-    {
+            @Valid @RequestBody RestorePassengerRequestDto dto
+    ) {
         return ResponseEntity.ok(service.restorePassenger(dto));
     }
 

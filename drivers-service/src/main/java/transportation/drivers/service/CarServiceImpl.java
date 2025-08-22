@@ -26,7 +26,11 @@ public class CarServiceImpl implements CarService {
 
     private static final Pattern LICENSE_PLATE_PATTERN = Pattern.compile("^[0-9]{4}\\s?[A-Z]{2}-[1-7]$");
 
-    public CarServiceImpl(CarRepository carRepository, DriverRepository driverRepository, CarMapper carMapper) {
+    public CarServiceImpl(
+            CarRepository carRepository,
+            DriverRepository driverRepository,
+            CarMapper carMapper
+    ) {
         this.carRepository = carRepository;
         this.driverRepository = driverRepository;
         this.carMapper = carMapper;

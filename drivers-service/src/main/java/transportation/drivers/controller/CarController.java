@@ -31,8 +31,8 @@ public class CarController {
 
     @PostMapping
     public ResponseEntity<CarResponseDto> createCar(
-            @Valid @RequestBody CreateCarRequestDto dto)
-    {
+            @Valid @RequestBody CreateCarRequestDto dto
+    ) {
         CarResponseDto created = carService.createCar(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
@@ -48,8 +48,8 @@ public class CarController {
 
     @GetMapping("/{carId}")
     public ResponseEntity<CarResponseDto> getCarById(
-            @PathVariable("carId") String carId)
-    {
+            @PathVariable("carId") String carId
+    ) {
         CarResponseDto car = carService.getCarById(carId);
         return ResponseEntity.ok(car);
     }
@@ -62,16 +62,16 @@ public class CarController {
 
     @DeleteMapping("/{carId}")
     public ResponseEntity<Void> deleteCar(
-            @PathVariable("carId") String carId)
-    {
+            @PathVariable("carId") String carId
+    ) {
         carService.deleteCar(carId);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/restore")
     public ResponseEntity<CarResponseDto> restoreCar(
-            @Valid @RequestBody RestoreCarRequestDto request)
-    {
+            @Valid @RequestBody RestoreCarRequestDto request
+    ) {
         CarResponseDto restored = carService.restoreCar(request);
         return ResponseEntity.ok(restored);
     }

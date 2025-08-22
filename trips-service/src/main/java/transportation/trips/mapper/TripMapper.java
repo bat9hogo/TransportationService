@@ -23,4 +23,21 @@ public interface TripMapper {
     default TripStatus stringToTripStatus(String status) {
         return status != null ? TripStatus.valueOf(status) : null;
     }
+
+    default void updateEntityFromDto(TripRequestDto dto, Trip entity) {
+        if (dto.driverId() != null)
+            entity.setDriverId(dto.driverId());
+
+        if (dto.passengerId() != null)
+            entity.setPassengerId(dto.passengerId());
+
+        if (dto.fromAddress() != null)
+            entity.setFromAddress(dto.fromAddress());
+
+        if (dto.toAddress() != null)
+            entity.setToAddress(dto.toAddress());
+
+        if (dto.price() != null)
+            entity.setPrice(dto.price());
+    }
 }

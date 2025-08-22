@@ -2,6 +2,7 @@ package transportation.trips.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import transportation.trips.dto.RestoreTripRequestDto;
 import transportation.trips.dto.TripRequestDto;
 import transportation.trips.dto.TripResponseDto;
 import transportation.trips.dto.TripStatusUpdateDto;
@@ -40,12 +41,9 @@ public class TripServiceImpl implements TripService {
 
     @Override
     public TripResponseDto getTripById(String id) {
-        Trip trip = tripRepository.findById(id)
-                .filter(t -> !t.isDeleted())
-                .orElseThrow(() -> new TripNotFoundException("Trip with id " + id + " not found"));
+        Trip trip = findTripByIdOrThrow(id);
         return tripMapper.toDto(trip);
     }
-
 
     @Override
     public List<TripResponseDto> getAllTrips() {
@@ -57,14 +55,9 @@ public class TripServiceImpl implements TripService {
 
     @Override
     public TripResponseDto updateTrip(String id, TripRequestDto request) {
-        Trip trip = tripRepository.findById(id)
-                .orElseThrow(() -> new TripNotFoundException("Trip with id " + id + " not found"));
+        Trip trip = findTripByIdOrThrow(id);
 
-        trip.setDriverId(request.getDriverId());
-        trip.setPassengerId(request.getPassengerId());
-        trip.setFromAddress(request.getFromAddress());
-        trip.setToAddress(request.getToAddress());
-        trip.setPrice(request.getPrice());
+        tripMapper.updateEntityFromDto(request, trip);
 
         Trip updated = tripRepository.save(trip);
         return tripMapper.toDto(updated);
@@ -72,19 +65,43 @@ public class TripServiceImpl implements TripService {
 
     @Override
     public void deleteTrip(String id) {
-        Trip trip = tripRepository.findById(id)
-                .orElseThrow(() -> new TripNotFoundException("Trip with id " + id + " not found"));
+        Trip trip = findTripByIdOrThrow(id);
         trip.setDeleted(true);
         tripRepository.save(trip);
     }
 
     @Override
     public TripResponseDto updateTripStatus(String id, TripStatusUpdateDto statusUpdate) {
-        Trip trip = tripRepository.findById(id)
-                .orElseThrow(() -> new TripNotFoundException("Trip with id " + id + " not found"));
+        Trip trip = findTripByIdOrThrow(id);
 
-        trip.setStatus(statusUpdate.getStatus().name());
+        trip.setStatus(statusUpdate.status().name());
         Trip updated = tripRepository.save(trip);
         return tripMapper.toDto(updated);
+    }
+
+    @Override
+    public TripResponseDto restoreTrip(RestoreTripRequestDto request) {
+        Trip trip = tripRepository.findById(request.id())
+                .orElseThrow(() -> new TripNotFoundException("Trip with id " + request.id() + " not found"));
+
+        if (!trip.isDeleted()) {
+            throw new IllegalStateException("Trip with id " + request.id() + " is not deleted");
+        }
+
+        boolean exists = tripRepository.findAll().stream()
+                .anyMatch(t -> !t.isDeleted() && t.getId().equals(trip.getId()));
+        if (exists) {
+            throw new IllegalStateException("Another active trip with id " + trip.getId() + " already exists");
+        }
+
+        trip.setDeleted(false);
+        Trip restored = tripRepository.save(trip);
+        return tripMapper.toDto(restored);
+    }
+
+    private Trip findTripByIdOrThrow(String id) {
+        return tripRepository.findById(id)
+                .filter(t -> !t.isDeleted())
+                .orElseThrow(() -> new TripNotFoundException("Trip with id " + id + " not found"));
     }
 }

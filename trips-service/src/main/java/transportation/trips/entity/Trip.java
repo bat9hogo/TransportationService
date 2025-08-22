@@ -9,7 +9,7 @@ import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;
 
 @Table("trips")
-public class Trip {
+public class Trip extends BaseEntity {
 
     @PrimaryKey
     private String id;
@@ -35,13 +35,12 @@ public class Trip {
     @Column("price")
     private BigDecimal price;
 
-    @Column("deleted")
-    private boolean deleted = false;
-
     public Trip() {}
 
-    public Trip(String id, String driverId, String passengerId, String fromAddress, String toAddress,
-                String status, Instant orderTime, BigDecimal price) {
+    public Trip(
+            String id, String driverId, String passengerId, String fromAddress, String toAddress,
+            String status, Instant orderTime, BigDecimal price
+    ){
         this.id = id;
         this.driverId = driverId;
         this.passengerId = passengerId;
@@ -52,32 +51,61 @@ public class Trip {
         this.price = price;
     }
 
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    public String getId() {
+        return id;
+    }
+    public void setId(String id) {
+        this.id = id;
+    }
 
-    public String getDriverId() { return driverId; }
-    public void setDriverId(String driverId) { this.driverId = driverId; }
+    public String getDriverId() {
+        return driverId;
+    }
+    public void setDriverId(String driverId) {
+        this.driverId = driverId;
+    }
 
-    public String getPassengerId() { return passengerId; }
-    public void setPassengerId(String passengerId) { this.passengerId = passengerId; }
+    public String getPassengerId() {
+        return passengerId;
+    }
+    public void setPassengerId(String passengerId) {
+        this.passengerId = passengerId;
+    }
 
-    public String getFromAddress() { return fromAddress; }
-    public void setFromAddress(String fromAddress) { this.fromAddress = fromAddress; }
+    public String getFromAddress() {
+        return fromAddress;
+    }
+    public void setFromAddress(String fromAddress) {
+        this.fromAddress = fromAddress;
+    }
 
-    public String getToAddress() { return toAddress; }
-    public void setToAddress(String toAddress) { this.toAddress = toAddress; }
+    public String getToAddress() {
+        return toAddress;
+    }
+    public void setToAddress(String toAddress) {
+        this.toAddress = toAddress;
+    }
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public String getStatus() {
+        return status;
+    }
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
-    public Instant getOrderTime() { return orderTime; }
-    public void setOrderTime(Instant orderTime) { this.orderTime = orderTime; }
+    public Instant getOrderTime() {
+        return orderTime;
+    }
+    public void setOrderTime(Instant orderTime) {
+        this.orderTime = orderTime;
+    }
 
-    public BigDecimal getPrice() { return price; }
-    public void setPrice(BigDecimal price) { this.price = price; }
-
-    public boolean isDeleted() { return deleted; }
-    public void setDeleted(boolean deleted) { this.deleted = deleted; }
+    public BigDecimal getPrice() {
+        return price;
+    }
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
 
     @Override
     public boolean equals(Object o) {
