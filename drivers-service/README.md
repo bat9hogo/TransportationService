@@ -24,3 +24,7 @@ http://localhost:YOUR_PORT/api/YOUR_VERSION/cars...
 ```bash
 http://localhost:YOUR_PORT/swagger-ui.html
 ```
+- Kibana:
+```bash
+http://localhost:5602
+```

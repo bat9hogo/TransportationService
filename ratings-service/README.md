@@ -21,6 +21,10 @@ http://localhost:YOUR_PORT/api/YOUR_VERSION/ratings...
 ```bash
 http://localhost:YOUR_PORT/swagger-ui.html
 ```
+- Kibana:
+```bash
+http://localhost:5603
+```
 
 ## Database
 

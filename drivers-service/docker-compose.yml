@@ -10,8 +10,53 @@ services:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
       MONGO_INITDB_DATABASE: ${MONGO_DB}
+    networks:
+      - drivers-net
     volumes:
       - drivers_data:/data/db
 
+  logstash:
+    image: logstash:7.16.2
+    container_name: logstash-drivers
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+    networks:
+      - drivers-net
+    depends_on:
+      - elasticsearch
+
+  elasticsearch:
+    image: elasticsearch:7.16.1
+    container_name: elasticsearch_drivers
+    environment:
+      ES_JAVA_OPTS: "-Xmx512m -Xms512m"
+      discovery.type: single-node
+    ports:
+      - "9201:9200"
+    networks:
+      - drivers-net
+    volumes:
+      - drivers_elastic_data:/usr/share/elasticsearch/data
+
+
+  kibana:
+    image: kibana:7.16.1
+    container_name: kibana_drivers
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5602:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - drivers-net
+
 volumes:
   drivers_data:
+  drivers_elastic_data:
+
+networks:
+  drivers-net:
+    driver: bridge

@@ -1,6 +1,8 @@
 package transportation.ratings.controller;
 
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,6 +26,8 @@ import java.util.List;
 @RequestMapping("/api/v1/ratings")
 public class RatingController {
 
+    private static final Logger logger = LoggerFactory.getLogger(RatingController.class);
+
     private final RatingService ratingService;
 
     public RatingController(RatingService ratingService) {
@@ -34,6 +38,7 @@ public class RatingController {
     public ResponseEntity<RatingResponseDto> createRating(
             @Valid @RequestBody CreateRatingRequestDto requestDto
     ) {
+        logger.info("POST /api/v1/ratings called with {}", requestDto);
         RatingResponseDto response = ratingService.createRating(requestDto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -42,13 +47,17 @@ public class RatingController {
     public ResponseEntity<RatingResponseDto> getRatingById(
             @PathVariable("id") String id
     ) {
+        logger.info("GET /api/v1/ratings/{} called", id);
         RatingResponseDto response = ratingService.getRatingById(id);
+        logger.info("Returning rating: {}", response);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping
     public ResponseEntity<List<RatingResponseDto>> getAllRatings() {
+        logger.info("GET /api/v1/ratings called");
         List<RatingResponseDto> responses = ratingService.getAllRatings();
+        logger.info("Returning {} ratings", responses.size());
         return ResponseEntity.ok(responses);
     }
 
@@ -57,7 +66,9 @@ public class RatingController {
             @PathVariable("id") String id,
             @Valid @RequestBody UpdateRatingRequestDto updateDto
     ) {
+        logger.info("PUT /api/v1/ratings/{} called with {}", id, updateDto);
         RatingResponseDto response = ratingService.updateRating(id, updateDto);
+        logger.info("Updated rating: {}", response);
         return ResponseEntity.ok(response);
     }
 
@@ -65,7 +76,9 @@ public class RatingController {
     public ResponseEntity<Void> deleteRating(
             @PathVariable("id") String id
     ) {
+        logger.info("DELETE /api/v1/ratings/{} called", id);
         ratingService.deleteRating(id);
+        logger.info("Deleted rating with id {}", id);
         return ResponseEntity.noContent().build();
     }
 
@@ -73,6 +86,9 @@ public class RatingController {
     public ResponseEntity<RatingResponseDto> restoreRating(
             @Valid @RequestBody RestoreRatingRequestDto request
     ) {
-        return ResponseEntity.ok(ratingService.restoreRating(request));
+        logger.info("PATCH /api/v1/ratings/restore called with {}", request);
+        RatingResponseDto response = ratingService.restoreRating(request);
+        logger.info("Restored rating: {}", response);
+        return ResponseEntity.ok(response);
     }
 }

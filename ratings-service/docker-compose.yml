@@ -8,7 +8,31 @@ services:
       - xpack.security.enabled=false
       - ES_JAVA_OPTS=-Xms512m -Xmx512m
     ports:
-      - "${ELASTICSEARCH_PORT}:${ELASTICSEARCH_PORT}"
+      - "9220:9200"
+    networks:
+      - elastic
+
+  kibana:
+    image: kibana:8.9.0
+    container_name: kibana_ratings
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5603:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - elastic
+
+  logstash:
+    image: logstash:8.9.0
+    container_name: logstash_ratings
+    ports:
+      - "5010:5010"
+    volumes:
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+    depends_on:
+      - elasticsearch
     networks:
       - elastic
 

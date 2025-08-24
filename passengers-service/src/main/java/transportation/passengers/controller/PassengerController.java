@@ -1,5 +1,7 @@
 package transportation.passengers.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import transportation.passengers.dto.CreatePassengerRequestDto;
 import transportation.passengers.dto.UpdatePassengerRequestDto;
 import transportation.passengers.dto.RestorePassengerRequestDto;
@@ -22,6 +24,8 @@ import java.util.List;
 @RequestMapping("/api/v1/passengers")
 public class PassengerController {
 
+    private static final Logger logger = LoggerFactory.getLogger(PassengerController.class);
+
     private final PassengerService service;
 
     public PassengerController(PassengerService service) {
@@ -32,7 +36,9 @@ public class PassengerController {
     public ResponseEntity<PassengerResponseDto> createPassenger(
             @Valid @RequestBody CreatePassengerRequestDto dto
     ) {
+        logger.info("POST /api/v1/passengers called with {}", dto);
         PassengerResponseDto created = service.createPassenger(dto);
+        logger.info("Created passenger: {}", created);
         return ResponseEntity.ok(created);
     }
 
@@ -40,13 +46,17 @@ public class PassengerController {
     public ResponseEntity<PassengerResponseDto> getPassengerById(
             @PathVariable("id") Long id
     ) {
+        logger.info("GET /api/v1/passengers/{} called", id);
         PassengerResponseDto dto = service.getPassengerById(id);
+        logger.info("Returning passenger: {}", dto);
         return ResponseEntity.ok(dto);
     }
 
     @GetMapping
     public ResponseEntity<List<PassengerResponseDto>> getAllPassengers() {
+        logger.info("GET /api/v1/passengers called");
         List<PassengerResponseDto> list = service.getAllPassengers();
+        logger.info("Returning {} passengers", list.size());
         return ResponseEntity.ok(list);
     }
 
@@ -55,7 +65,9 @@ public class PassengerController {
             @PathVariable("id") Long id,
             @Valid @RequestBody UpdatePassengerRequestDto dto
     ) {
+        logger.info("PUT /api/v1/passengers/{} called with {}", id, dto);
         PassengerResponseDto updated = service.updatePassenger(id, dto);
+        logger.info("Updated passenger: {}", updated);
         return ResponseEntity.ok(updated);
     }
 
@@ -63,7 +75,9 @@ public class PassengerController {
     public ResponseEntity<Void> deletePassenger(
             @PathVariable("id") Long id
     ) {
+        logger.info("DELETE /api/v1/passengers/{} called", id);
         service.deletePassenger(id);
+        logger.info("Passenger {} deleted", id);
         return ResponseEntity.noContent().build();
     }
 
@@ -71,7 +85,9 @@ public class PassengerController {
     public ResponseEntity<PassengerResponseDto> restorePassenger(
             @Valid @RequestBody RestorePassengerRequestDto dto
     ) {
-        return ResponseEntity.ok(service.restorePassenger(dto));
+        logger.info("POST /api/v1/passengers/restore called with {}", dto);
+        PassengerResponseDto restored = service.restorePassenger(dto);
+        logger.info("Restored passenger: {}", restored);
+        return ResponseEntity.ok(restored);
     }
-
 }

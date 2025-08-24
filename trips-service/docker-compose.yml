@@ -18,8 +18,53 @@ services:
       test: ["CMD", "cqlsh", "-e", "describe keyspaces"]
       interval: 10s
       retries: 10
+    networks:
+      - trips-net
     volumes:
       - trips_data:/var/lib/cassandra
 
+  logstash:
+    image: logstash:7.16.2
+    container_name: logstash_trips
+    ports:
+      - "5002:5002"
+    volumes:
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+    networks:
+      - trips-net
+    depends_on:
+      - elasticsearch
+
+  elasticsearch:
+    image: elasticsearch:7.16.1
+    container_name: elasticsearch_trips
+    environment:
+      ES_JAVA_OPTS: "-Xmx512m -Xms512m"
+      discovery.type: single-node
+    ports:
+      - "9202:9200"
+    networks:
+      - trips-net
+    volumes:
+      - trips_elastic_data:/usr/share/elasticsearch/data
+
+
+  kibana:
+    image: kibana:7.16.1
+    container_name: kibana_trips
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5604:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - trips-net
+
 volumes:
   trips_data:
+  trips_elastic_data:
+
+networks:
+  trips-net:
+    driver: bridge
