@@ -25,6 +25,14 @@ http://localhost:YOUR_PORT/swagger-ui.html
 ```bash
 http://localhost:5603
 ```
+- Prometheus:
+```bash
+http://localhost:9094
+```
+- Grafana:
+```bash
+http://localhost:3004
+```
 
 ## Database
 
